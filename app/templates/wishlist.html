@@ -1,0 +1,478 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-heart me-2" style="color: var(--primary);"></i>
+                    My <span style="color: var(--primary);">Wishlist</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}" style="color: var(--primary);">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Wishlist</li>
+                    </ol>
+                </nav>
+            </div>
+            {% if items %}
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-heart text-danger me-1"></i> {{ items|length }} Items
+                </span>
+                <button type="button" class="btn btn-outline-danger rounded-pill ms-2" data-bs-toggle="modal" data-bs-target="#clearWishlistModal">
+                    <i class="fas fa-trash-alt me-1"></i> Clear All
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    {% if items %}
+    <!-- Wishlist Statistics -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="stat-card text-center p-3 rounded-4">
+                <div class="stat-icon mb-2">
+                    <i class="fas fa-heart fa-2x text-danger"></i>
+                </div>
+                <h3 class="fw-bold mb-0">{{ items|length }}</h3>
+                <p class="text-muted small mb-0">Total Items</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center p-3 rounded-4">
+                <div class="stat-icon mb-2">
+                    <i class="fas fa-dollar-sign fa-2x" style="color: var(--primary);"></i>
+                </div>
+                <h3 class="fw-bold mb-0">${{ "%.2f"|format(items|sum(attribute='product.price')) }}</h3>
+                <p class="text-muted small mb-0">Total Value</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center p-3 rounded-4">
+                <div class="stat-icon mb-2">
+                    <i class="fas fa-tag fa-2x" style="color: var(--secondary);"></i>
+                </div>
+                <h3 class="fw-bold mb-0">{{ items|selectattr('product.stock', 'greaterthan', 0)|list|length }}</h3>
+                <p class="text-muted small mb-0">In Stock</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wishlist Items Grid -->
+    <div class="product-grid">
+        {% for item in items %}
+        <div class="product-card" data-product-id="{{ item.product.id }}">
+            <div class="product-image">
+                <img src="{{ item.product.image_url or 'https://via.placeholder.com/300x200?text=No+Image' }}" alt="{{ item.product.name }}">
+                
+                <!-- Stock Badge -->
+                {% if item.product.stock <= 0 %}
+                <div class="position-absolute top-0 end-0 m-2">
+                    <span class="badge bg-secondary rounded-pill px-3 py-2">
+                        <i class="fas fa-times-circle me-1"></i> Out of Stock
+                    </span>
+                </div>
+                {% elif item.product.stock < 5 %}
+                <div class="position-absolute top-0 end-0 m-2">
+                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                        <i class="fas fa-exclamation-triangle me-1"></i> Only {{ item.product.stock }} left!
+                    </span>
+                </div>
+                {% endif %}
+                
+                <!-- Quick Actions Overlay -->
+                <div class="product-overlay">
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('main.product_detail', product_id=item.product.id) }}" 
+                           class="btn btn-light rounded-pill">
+                            <i class="fas fa-eye"></i> Quick View
+                        </a>
+                        <button class="btn btn-light rounded-pill remove-item" data-item-id="{{ item.id }}">
+                            <i class="fas fa-trash-alt text-danger"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="product-details">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <span class="badge bg-light text-dark mb-2" style="background: #FEF3E4 !important;">
+                            {{ item.product.category.name if item.product.category else 'General' }}
+                        </span>
+                        <h5 class="fw-bold mb-1">{{ item.product.name }}</h5>
+                    </div>
+                    <div class="rating">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star-half-alt text-warning"></i>
+                    </div>
+                </div>
+                
+                <p class="text-muted small mb-2">{{ item.product.description[:80] }}...</p>
+                
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div>
+                        <span class="product-price">${{ "%.2f"|format(item.product.price) }}</span>
+                        {% if item.product.old_price %}
+                        <span class="text-muted text-decoration-line-through ms-2 small">
+                            ${{ "%.2f"|format(item.product.old_price) }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="stock-info">
+                        {% if item.product.stock > 0 %}
+                        <span class="text-success small">
+                            <i class="fas fa-check-circle"></i> In Stock
+                        </span>
+                        {% else %}
+                        <span class="text-danger small">
+                            <i class="fas fa-times-circle"></i> Out of Stock
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2 mt-3">
+                    {% if item.product.stock > 0 %}
+                    <a href="{{ url_for('cart.add_to_cart', product_id=item.product.id) }}" 
+                       class="add-to-cart-btn flex-grow-1 text-center text-decoration-none">
+                        <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                    </a>
+                    {% else %}
+                    <button class="add-to-cart-btn flex-grow-1 text-center" disabled style="background: #ccc; cursor: not-allowed;">
+                        <i class="fas fa-times-circle me-2"></i>Out of Stock
+                    </button>
+                    {% endif %}
+                    <button class="action-icon remove-item" data-item-id="{{ item.id }}" 
+                            style="background: #FEF3E4; width: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+                
+                <!-- Added Date -->
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="far fa-calendar-alt me-1"></i> Added: {{ item.added_date.strftime('%b %d, %Y') if item.added_date else 'Recently' }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Recommended Products Section -->
+    <div class="recommended-section mt-5 pt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <span class="badge px-3 py-2 rounded-pill mb-2" style="background: #FCE4CD; color: #C45100;">
+                    <i class="fas fa-star"></i> You May Also Like
+                </span>
+                <h3 class="mb-0" style="font-family: 'Playfair Display', serif;">Recommended <span style="color: var(--primary);">For You</span></h3>
+            </div>
+            <a href="{{ url_for('main.all_products') }}" class="text-decoration-none fw-semibold" style="color: var(--primary);">
+                Browse All <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="recommended-card text-center p-3 rounded-4">
+                    <div class="mb-2">
+                        <i class="fas fa-utensil-spoon fa-3x" style="color: var(--primary);"></i>
+                    </div>
+                    <h6 class="fw-bold">Premium Cookware</h6>
+                    <p class="small text-muted">Explore our collection</p>
+                    <a href="{{ url_for('main.all_products') }}" class="btn btn-outline-custom btn-sm">Shop Now</a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="recommended-card text-center p-3 rounded-4">
+                    <div class="mb-2">
+                        <i class="fas fa-kitchen-set fa-3x" style="color: var(--secondary);"></i>
+                    </div>
+                    <h6 class="fw-bold">Kitchen Sets</h6>
+                    <p class="small text-muted">Complete your kitchen</p>
+                    <a href="{{ url_for('main.all_products') }}" class="btn btn-outline-custom btn-sm">Shop Now</a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="recommended-card text-center p-3 rounded-4">
+                    <div class="mb-2">
+                        <i class="fas fa-mug-hot fa-3x" style="color: var(--accent);"></i>
+                    </div>
+                    <h6 class="fw-bold">Bakeware</h6>
+                    <p class="small text-muted">Oven essentials</p>
+                    <a href="{{ url_for('main.all_products') }}" class="btn btn-outline-custom btn-sm">Shop Now</a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="recommended-card text-center p-3 rounded-4">
+                    <div class="mb-2">
+                        <i class="fas fa-knife-kitchen fa-3x" style="color: var(--primary);"></i>
+                    </div>
+                    <h6 class="fw-bold">Cutlery</h6>
+                    <p class="small text-muted">Premium knives</p>
+                    <a href="{{ url_for('main.all_products') }}" class="btn btn-outline-custom btn-sm">Shop Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Empty Wishlist State -->
+    <div class="empty-state text-center py-5">
+        <div class="empty-state-icon mb-4">
+            <i class="fas fa-heart-broken fa-5x" style="color: var(--primary); opacity: 0.5;"></i>
+        </div>
+        <h3 class="mb-3">Your Wishlist is Empty</h3>
+        <p class="text-muted mb-4">Start adding items you love to your wishlist! Save your favorite products and come back anytime.</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ url_for('main.all_products') }}" class="btn btn-primary-custom">
+                <i class="fas fa-store me-2"></i> Browse Products
+            </a>
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-custom">
+                <i class="fas fa-home me-2"></i> Back to Home
+            </a>
+        </div>
+        
+        <!-- Suggestions -->
+        <div class="mt-5 pt-3">
+            <h6 class="text-muted">Popular Categories</h6>
+            <div class="d-flex gap-2 justify-content-center flex-wrap mt-3">
+                <a href="{{ url_for('main.all_products', category='Cookware') }}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">Cookware</a>
+                <a href="{{ url_for('main.all_products', category='Cutlery') }}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">Cutlery</a>
+                <a href="{{ url_for('main.all_products', category='Bakeware') }}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">Bakeware</a>
+                <a href="{{ url_for('main.all_products', category='Serveware') }}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">Serveware</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Clear Wishlist Confirmation Modal -->
+<div class="modal fade" id="clearWishlistModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Clear Wishlist</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: var(--primary);"></i>
+                <p class="mb-0">Are you sure you want to clear your entire wishlist?</p>
+                <small class="text-muted">This action cannot be undone.</small>
+            </div>
+            <div class="modal-footer border-0 justify-content-center gap-3">
+                <button type="button" class="btn btn-outline-custom px-4" data-bs-dismiss="modal">Cancel</button>
+                <a href="{{ url_for('wishlist.clear_wishlist') }}" class="btn btn-danger px-4" onclick="return confirm('Are you sure you want to clear your entire wishlist?')">Clear All</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Statistics Cards */
+    .stat-card {
+        background: white;
+        border: 1px solid rgba(230,126,34,0.1);
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(230,126,34,0.1);
+    }
+    
+    /* Product Grid */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+    }
+    
+    .product-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+        position: relative;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(230,126,34,0.12);
+    }
+    
+    .product-image {
+        height: 220px;
+        overflow: hidden;
+        background: #FDF4E8;
+        position: relative;
+    }
+    
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s;
+    }
+    
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+    
+    .product-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: 0.3s;
+    }
+    
+    .product-card:hover .product-overlay {
+        opacity: 1;
+    }
+    
+    .product-details {
+        padding: 1.25rem;
+    }
+    
+    .product-price {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+    
+    .add-to-cart-btn {
+        background: var(--btn-grad);
+        border: none;
+        border-radius: 50px;
+        padding: 10px;
+        font-weight: 600;
+        transition: 0.2s;
+        color: white;
+    }
+    
+    .add-to-cart-btn:hover {
+        background: var(--btn-hover);
+        transform: translateY(-2px);
+    }
+    
+    .action-icon {
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .action-icon:hover {
+        background: var(--primary) !important;
+        color: white !important;
+        transform: scale(1.05);
+    }
+    
+    /* Recommended Cards */
+    .recommended-card {
+        background: white;
+        border: 1px solid rgba(230,126,34,0.1);
+        transition: all 0.3s;
+        height: 100%;
+    }
+    
+    .recommended-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(230,126,34,0.1);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        background: white;
+        border-radius: 28px;
+        padding: 3rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .rating i {
+        font-size: 0.8rem;
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .product-card {
+        animation: fadeInUp 0.4s ease forwards;
+    }
+    
+    @media (max-width: 768px) {
+        .product-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .stat-card {
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state {
+            padding: 2rem;
+        }
+    }
+</style>
+
+<script>
+    // Remove item from wishlist with confirmation
+    document.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const itemId = this.dataset.itemId;
+            if (confirm('Remove this item from your wishlist?')) {
+                window.location.href = `/wishlist/remove/${itemId}`;
+            }
+        });
+    });
+    
+    // Add to cart animation
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            if (!this.hasAttribute('disabled')) {
+                // Add loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-pulse me-2"></i>Adding...';
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 1000);
+            }
+        });
+    });
+</script>
+{% endblock %}

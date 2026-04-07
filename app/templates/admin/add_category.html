@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-plus-circle me-2" style="color: var(--primary);"></i>
+                    Add New <span style="color: var(--primary);">Category</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" style="color: var(--primary);">Admin</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.categories') }}" style="color: var(--primary);">Categories</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Add Category</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-card">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-folder-plus me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Create New Category</h5>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <form method="POST" id="addCategoryForm">
+                        <!-- Category Name -->
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-tag me-2" style="color: var(--primary);"></i>Category Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="name" name="name" 
+                                   placeholder="e.g., Knives, Pans, Utensils, Bakeware"
+                                   required autofocus>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i> This will be displayed to customers
+                            </small>
+                        </div>
+
+                        <!-- Slug (Auto-generated) -->
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-link me-2" style="color: var(--primary);"></i>Slug (URL)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text slug-prefix">/category/</span>
+                                <input type="text" class="form-control" id="slug" name="slug" 
+                                       placeholder="auto-generated-from-name">
+                            </div>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-globe me-1"></i> Leave empty to auto-generate from name
+                            </small>
+                        </div>
+
+                        <!-- Category Icon -->
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-icons me-2" style="color: var(--primary);"></i>Category Icon
+                            </label>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <select class="form-select" id="icon" name="icon">
+                                        <option value="fa-folder">📁 Folder (Default)</option>
+                                        <option value="fa-kitchen-set">🍳 Kitchen Set</option>
+                                        <option value="fa-utensils">🍴 Utensils</option>
+                                        <option value="fa-knife-kitchen">🔪 Knife</option>
+                                        <option value="fa-frying-pan">🍳 Frying Pan</option>
+                                        <option value="fa-mug-hot">☕ Mug/Hot Drinks</option>
+                                        <option value="fa-cake-candles">🎂 Bakeware</option>
+                                        <option value="fa-blender">🥤 Blender</option>
+                                        <option value="fa-mixer">🥣 Mixer</option>
+                                        <option value="fa-jug-detergent">🧴 Jug/Container</option>
+                                        <option value="fa-spoon">🥄 Spoon</option>
+                                        <option value="fa-chopsticks">🥢 Chopsticks</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="icon-preview">
+                                        <i class="fas fa-folder fa-2x" id="iconPreview" style="color: var(--primary);"></i>
+                                        <span class="small text-muted">Preview</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-palette me-1"></i> Choose an icon that represents this category
+                            </small>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-2" style="color: var(--primary);"></i>Description (Optional)
+                            </label>
+                            <textarea class="form-control" id="description" name="description" rows="4" 
+                                      placeholder="Brief description of this category..."></textarea>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i> A short description helps customers understand what this category offers
+                            </small>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-toggle-on me-2" style="color: var(--primary);"></i>Status
+                            </label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                <label class="form-check-label" for="is_active">
+                                    <span id="statusLabel">Active</span>
+                                    <small class="text-muted d-block">Active categories will be visible to customers</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- SEO Tips -->
+                        <div class="alert-tips mb-4">
+                            <div class="d-flex">
+                                <i class="fas fa-lightbulb fa-2x me-3" style="color: var(--secondary);"></i>
+                                <div>
+                                    <strong class="d-block mb-1">SEO Tips for Categories</strong>
+                                    <small class="text-muted">✓ Use clear, descriptive category names<br>
+                                    ✓ Add a helpful description for better search visibility<br>
+                                    ✓ Choose relevant icons for visual recognition</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <a href="{{ url_for('admin.categories') }}" class="btn btn-outline-custom">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary-custom" id="submitBtn">
+                                <i class="fas fa-plus-circle me-2"></i> Add Category
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Form Card */
+    .form-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .card-header-custom {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        background: #FFFCF8;
+    }
+    
+    .card-body-custom {
+        padding: 2rem;
+    }
+    
+    /* Form Controls */
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 1px solid rgba(230,126,34,0.2);
+        padding: 0.75rem 1rem;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(230,126,34,0.1);
+    }
+    
+    .form-control-lg {
+        font-size: 1rem;
+    }
+    
+    /* Slug Input */
+    .slug-prefix {
+        background: #FEF3E4;
+        border: 1px solid rgba(230,126,34,0.2);
+        border-right: none;
+        color: var(--primary-dark);
+        font-family: monospace;
+    }
+    
+    /* Icon Preview */
+    .icon-preview {
+        text-align: center;
+        padding: 0.5rem;
+        background: #FEF3E4;
+        border-radius: 12px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Alert Tips */
+    .alert-tips {
+        background: #FFF8F0;
+        border-left: 4px solid var(--secondary);
+        padding: 1rem;
+        border-radius: 12px;
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    /* Switch Styling */
+    .form-check-input:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .card-body-custom {
+            padding: 1.25rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-actions .btn {
+            width: 100%;
+        }
+        
+        .icon-preview {
+            margin-top: 0.5rem;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-card {
+        animation: fadeIn 0.4s ease forwards;
+    }
+    
+    /* Loading State */
+    .btn-primary-custom.loading {
+        opacity: 0.7;
+        cursor: wait;
+    }
+    
+    .btn-primary-custom.loading i {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+    // Auto-generate slug from name
+    const nameInput = document.getElementById('name');
+    const slugInput = document.getElementById('slug');
+    
+    if (nameInput && slugInput) {
+        nameInput.addEventListener('blur', function() {
+            if (!slugInput.value.trim()) {
+                const name = this.value.trim();
+                if (name) {
+                    const slug = name
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, '');
+                    slugInput.value = slug;
+                }
+            }
+        });
+    }
+    
+    // Icon preview
+    const iconSelect = document.getElementById('icon');
+    const iconPreview = document.getElementById('iconPreview');
+    
+    if (iconSelect && iconPreview) {
+        iconSelect.addEventListener('change', function() {
+            const selectedIcon = this.value;
+            iconPreview.className = `fas ${selectedIcon} fa-2x`;
+            iconPreview.style.color = 'var(--primary)';
+        });
+    }
+    
+    // Status toggle label
+    const statusToggle = document.getElementById('is_active');
+    const statusLabel = document.getElementById('statusLabel');
+    
+    if (statusToggle && statusLabel) {
+        statusToggle.addEventListener('change', function() {
+            if (this.checked) {
+                statusLabel.textContent = 'Active';
+                statusLabel.style.color = '#2E7D32';
+            } else {
+                statusLabel.textContent = 'Inactive';
+                statusLabel.style.color = '#C62828';
+            }
+        });
+    }
+    
+    // Form submission with loading state
+    const form = document.getElementById('addCategoryForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            // Validate name
+            const name = nameInput.value.trim();
+            if (!name) {
+                e.preventDefault();
+                nameInput.classList.add('is-invalid');
+                return;
+            }
+            nameInput.classList.remove('is-invalid');
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse me-2"></i> Adding Category...';
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        });
+    }
+    
+    // Real-time validation
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,552 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    All <span style="color: var(--primary);">Products</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}" style="color: var(--primary);">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Products</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-box me-1"></i> {{ products|length }} Products Available
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar Filters - Enhanced Design -->
+        <div class="col-lg-3 mb-4">
+            <div class="sidebar-filters">
+                <!-- Filter Toggle for Mobile -->
+                <button class="btn btn-primary-custom w-100 mb-3 d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="fas fa-filter me-2"></i> Show/Hide Filters
+                </button>
+                
+                <div class="collapse d-lg-block" id="filterCollapse">
+                    <!-- Categories Section -->
+                    <div class="filter-card">
+                        <div class="filter-header">
+                            <i class="fas fa-tags me-2" style="color: var(--primary);"></i>
+                            <h5 class="mb-0 fw-bold">Categories</h5>
+                        </div>
+                        <div class="filter-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <a href="{{ url_for('main.all_products') }}" class="category-link {% if not request.args.get('category') %}active{% endif %}">
+                                        <i class="fas fa-border-all me-2"></i> All Products
+                                        <span class="badge bg-light text-dark float-end">{{ products|length }}</span>
+                                    </a>
+                                </li>
+                                {% for category in categories %}
+                                <li class="mb-2">
+                                    <a href="{{ url_for('main.all_products', category=category) }}" 
+                                       class="category-link {% if request.args.get('category') == category %}active{% endif %}">
+                                        <i class="fas fa-utensil-spoon me-2"></i> {{ category }}
+                                        <span class="badge bg-light text-dark float-end">{{ products|selectattr('category', 'equalto', category)|list|length }}</span>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Price Range Filter -->
+                    <div class="filter-card">
+                        <div class="filter-header">
+                            <i class="fas fa-dollar-sign me-2" style="color: var(--primary);"></i>
+                            <h5 class="mb-0 fw-bold">Price Range</h5>
+                        </div>
+                        <div class="filter-body">
+                            <div class="price-inputs">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="small text-muted">Min ($)</label>
+                                        <input type="number" id="minPrice" class="form-control form-control-sm" placeholder="0">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="small text-muted">Max ($)</label>
+                                        <input type="number" id="maxPrice" class="form-control form-control-sm" placeholder="1000">
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-primary-custom w-100 mt-3" id="applyPriceFilter">
+                                    <i class="fas fa-search me-1"></i> Apply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock Status -->
+                    <div class="filter-card">
+                        <div class="filter-header">
+                            <i class="fas fa-boxes me-2" style="color: var(--primary);"></i>
+                            <h5 class="mb-0 fw-bold">Availability</h5>
+                        </div>
+                        <div class="filter-body">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="inStock" style="border-color: var(--primary);">
+                                <label class="form-check-label" for="inStock">
+                                    In Stock Only
+                                    <span class="text-success">✓</span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="onSale" style="border-color: var(--primary);">
+                                <label class="form-check-label" for="onSale">
+                                    On Sale
+                                    <span class="text-danger">🔥</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reset Filters -->
+                    <button class="btn btn-outline-custom w-100 mt-3" id="resetFilters">
+                        <i class="fas fa-undo-alt me-2"></i> Reset All Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            <!-- Sorting and View Options -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="mb-0" style="font-family: 'Playfair Display', serif;">
+                        {% if request.args.get('category') %}
+                        {{ request.args.get('category') }}
+                        {% else %}
+                        All Collections
+                        {% endif %}
+                    </h4>
+                    <p class="text-muted small mt-1">Showing {{ products|length }} products</p>
+                </div>
+                <div class="d-flex gap-2 mt-2 mt-sm-0">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-sort me-1"></i> Sort by
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-sort="newest">Newest First</a></li>
+                            <li><a class="dropdown-item" href="#" data-sort="price-low">Price: Low to High</a></li>
+                            <li><a class="dropdown-item" href="#" data-sort="price-high">Price: High to Low</a></li>
+                            <li><a class="dropdown-item" href="#" data-sort="popular">Most Popular</a></li>
+                        </ul>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-secondary rounded-pill me-1" id="gridView">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary rounded-pill" id="listView">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid/List View -->
+            <div class="product-grid" id="productsContainer">
+                {% for product in products %}
+                <div class="product-card" data-price="{{ product.price }}" data-stock="{{ product.stock }}">
+                    <div class="product-image">
+                        <img src="{{ product.image_url or 'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?w=600&auto=format' }}" 
+                             alt="{{ product.name }}">
+                        
+                        <!-- Sale Badge -->
+                        {% if product.old_price %}
+                        <div class="position-absolute top-0 start-0 m-2">
+                            <span class="badge bg-danger rounded-pill px-3 py-2">
+                                <i class="fas fa-tag"></i> SALE
+                            </span>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Stock Badge -->
+                        {% if product.stock <= 0 %}
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-secondary rounded-pill px-3 py-2">Out of Stock</span>
+                        </div>
+                        {% elif product.stock < 5 %}
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2">Only {{ product.stock }} left!</span>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Quick Actions Overlay -->
+                        <div class="product-overlay">
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('main.product_detail', product_id=product.id) }}" 
+                                   class="btn btn-light rounded-pill quick-view">
+                                    <i class="fas fa-eye"></i> Quick View
+                                </a>
+                                {% if current_user.is_authenticated and not current_user.is_admin and product.stock > 0 %}
+                                <a href="{{ url_for('wishlist.add_to_wishlist', product_id=product.id) }}" 
+                                   class="btn btn-light rounded-pill">
+                                    <i class="fas fa-heart text-danger"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="product-details">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span class="badge bg-light text-dark mb-2" style="background: #FEF3E4 !important;">
+                                    {{ product.category or 'General' }}
+                                </span>
+                                <h5 class="fw-bold mb-1">{{ product.name }}</h5>
+                            </div>
+                            <div class="rating">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star-half-alt text-warning"></i>
+                            </div>
+                        </div>
+                        
+                        <p class="text-muted small mb-2">{{ product.description[:100] }}...</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <span class="product-price">${{ "%.2f"|format(product.price) }}</span>
+                                {% if product.old_price %}
+                                <span class="text-muted text-decoration-line-through ms-2 small">
+                                    ${{ "%.2f"|format(product.old_price) }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="stock-info">
+                                {% if product.stock > 0 %}
+                                <span class="text-success small">
+                                    <i class="fas fa-check-circle"></i> In Stock
+                                </span>
+                                {% else %}
+                                <span class="text-danger small">
+                                    <i class="fas fa-times-circle"></i> Out of Stock
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if current_user.is_authenticated and not current_user.is_admin %}
+                            {% if product.stock > 0 %}
+                            <div class="d-flex gap-2 mt-3">
+                                <a href="{{ url_for('cart.add_to_cart', product_id=product.id) }}" 
+                                   class="add-to-cart-btn flex-grow-1 text-center text-decoration-none">
+                                    <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                                </a>
+                                <a href="{{ url_for('main.product_detail', product_id=product.id) }}" 
+                                   class="action-icon" style="background: #FEF3E4; width: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                                    <i class="fas fa-info"></i>
+                                </a>
+                            </div>
+                            {% else %}
+                            <button class="add-to-cart-btn mt-3" disabled style="background: #ccc; cursor: not-allowed;">
+                                <i class="fas fa-times-circle me-2"></i>Out of Stock
+                            </button>
+                            {% endif %}
+                        {% elif not current_user.is_authenticated %}
+                        <a href="{{ url_for('auth.login') }}" class="add-to-cart-btn mt-3 text-center text-decoration-none">
+                            <i class="fas fa-lock me-2"></i>Login to Purchase
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination (if you have it) -->
+            {% if pagination and pagination.pages > 1 %}
+            <nav aria-label="Page navigation" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if pagination.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('main.all_products', page=pagination.prev_num, category=request.args.get('category')) }}">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in pagination.iter_pages() %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('main.all_products', page=page_num, category=request.args.get('category')) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if pagination.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('main.all_products', page=pagination.next_num, category=request.args.get('category')) }}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Sidebar Filters Styling */
+    .sidebar-filters {
+        position: sticky;
+        top: 90px;
+    }
+    
+    .filter-card {
+        background: white;
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .filter-header {
+        padding: 1rem 1.2rem;
+        border-bottom: 2px solid rgba(230,126,34,0.1);
+        background: #FFFCF8;
+    }
+    
+    .filter-body {
+        padding: 1rem 1.2rem;
+    }
+    
+    .category-link {
+        display: block;
+        padding: 8px 12px;
+        color: var(--slate);
+        text-decoration: none;
+        border-radius: 12px;
+        transition: all 0.2s;
+    }
+    
+    .category-link:hover {
+        background: rgba(230,126,34,0.08);
+        color: var(--primary);
+        transform: translateX(5px);
+    }
+    
+    .category-link.active {
+        background: var(--btn-grad);
+        color: white;
+    }
+    
+    .category-link.active .badge {
+        background: white !important;
+        color: var(--primary);
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+    
+    .breadcrumb-item a {
+        text-decoration: none;
+    }
+    
+    .breadcrumb-item.active {
+        color: var(--primary-dark);
+    }
+    
+    /* Product Overlay */
+    .product-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: 0.3s;
+    }
+    
+    .product-card:hover .product-overlay {
+        opacity: 1;
+    }
+    
+    .quick-view {
+        transform: translateY(20px);
+        transition: 0.3s;
+    }
+    
+    .product-card:hover .quick-view {
+        transform: translateY(0);
+    }
+    
+    /* List View Styles */
+    .product-grid.list-view {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .product-grid.list-view .product-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .product-grid.list-view .product-image {
+        width: 200px;
+        height: 200px;
+        flex-shrink: 0;
+    }
+    
+    .product-grid.list-view .product-details {
+        flex: 1;
+    }
+    
+    @media (max-width: 768px) {
+        .product-grid.list-view .product-card {
+            flex-direction: column;
+        }
+        .product-grid.list-view .product-image {
+            width: 100%;
+        }
+        .sidebar-filters {
+            position: static;
+        }
+    }
+    
+    /* Animation */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .product-card {
+        animation: fadeInUp 0.5s ease forwards;
+    }
+</style>
+
+<script>
+    // Grid/List View Toggle
+    const gridViewBtn = document.getElementById('gridView');
+    const listViewBtn = document.getElementById('listView');
+    const productsContainer = document.getElementById('productsContainer');
+    
+    if (gridViewBtn && listViewBtn) {
+        gridViewBtn.addEventListener('click', () => {
+            productsContainer.classList.remove('list-view');
+            productsContainer.classList.add('product-grid');
+            localStorage.setItem('productView', 'grid');
+        });
+        
+        listViewBtn.addEventListener('click', () => {
+            productsContainer.classList.add('list-view');
+            productsContainer.classList.remove('product-grid');
+            localStorage.setItem('productView', 'list');
+        });
+        
+        // Load saved view preference
+        const savedView = localStorage.getItem('productView');
+        if (savedView === 'list') {
+            productsContainer.classList.add('list-view');
+            productsContainer.classList.remove('product-grid');
+        }
+    }
+    
+    // Price Range Filter
+    const applyPriceFilter = document.getElementById('applyPriceFilter');
+    if (applyPriceFilter) {
+        applyPriceFilter.addEventListener('click', () => {
+            const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+            const products = document.querySelectorAll('.product-card');
+            
+            products.forEach(product => {
+                const price = parseFloat(product.dataset.price);
+                if (price >= minPrice && price <= maxPrice) {
+                    product.style.display = '';
+                } else {
+                    product.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Stock Filter
+    const inStockFilter = document.getElementById('inStock');
+    if (inStockFilter) {
+        inStockFilter.addEventListener('change', () => {
+            const products = document.querySelectorAll('.product-card');
+            products.forEach(product => {
+                const stock = parseInt(product.dataset.stock);
+                if (inStockFilter.checked && stock <= 0) {
+                    product.style.display = 'none';
+                } else if (!inStockFilter.checked) {
+                    product.style.display = '';
+                }
+            });
+        });
+    }
+    
+    // Reset Filters
+    const resetFilters = document.getElementById('resetFilters');
+    if (resetFilters) {
+        resetFilters.addEventListener('click', () => {
+            document.getElementById('minPrice').value = '';
+            document.getElementById('maxPrice').value = '';
+            if (inStockFilter) inStockFilter.checked = false;
+            document.querySelectorAll('.product-card').forEach(product => {
+                product.style.display = '';
+            });
+        });
+    }
+    
+    // Sorting Functionality
+    document.querySelectorAll('[data-sort]').forEach(sortLink => {
+        sortLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const sortType = sortLink.dataset.sort;
+            const products = Array.from(document.querySelectorAll('.product-card'));
+            
+            products.sort((a, b) => {
+                const priceA = parseFloat(a.dataset.price);
+                const priceB = parseFloat(b.dataset.price);
+                
+                if (sortType === 'price-low') return priceA - priceB;
+                if (sortType === 'price-high') return priceB - priceA;
+                return 0;
+            });
+            
+            products.forEach(product => {
+                productsContainer.appendChild(product);
+            });
+        });
+    });
+</script>
+{% endblock %}

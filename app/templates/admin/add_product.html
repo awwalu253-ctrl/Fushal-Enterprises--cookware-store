@@ -1,0 +1,689 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-plus-circle me-2" style="color: var(--primary);"></i>
+                    Add New <span style="color: var(--primary);">Product</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" style="color: var(--primary);">Admin</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.products') }}" style="color: var(--primary);">Products</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Add Product</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="form-card">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-box-open me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Create New Product</h5>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <form method="POST" enctype="multipart/form-data" id="addProductForm">
+                        {{ form.hidden_tag() }}
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Product Name -->
+                                <div class="form-group mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-tag me-2" style="color: var(--primary);"></i>Product Name <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.name(class="form-control form-control-lg", placeholder="Enter product name") }}
+                                    {% if form.name.errors %}
+                                        {% for error in form.name.errors %}
+                                            <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                <!-- Description -->
+                                <div class="form-group mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-align-left me-2" style="color: var(--primary);"></i>Description <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.description(class="form-control", rows=6, placeholder="Enter product description...") }}
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-info-circle me-1"></i> Provide a detailed description of the product
+                                    </small>
+                                    {% if form.description.errors %}
+                                        {% for error in form.description.errors %}
+                                            <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <!-- Price -->
+                                        <div class="form-group mb-4">
+                                            <label class="form-label fw-semibold">
+                                                <i class="fas fa-dollar-sign me-2" style="color: var(--primary);"></i>Price <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text currency-symbol">$</span>
+                                                {{ form.price(class="form-control", placeholder="0.00", step="0.01") }}
+                                            </div>
+                                            {% if form.price.errors %}
+                                                {% for error in form.price.errors %}
+                                                    <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <!-- Stock -->
+                                        <div class="form-group mb-4">
+                                            <label class="form-label fw-semibold">
+                                                <i class="fas fa-boxes me-2" style="color: var(--primary);"></i>Stock Quantity <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.stock(class="form-control", placeholder="Quantity in stock") }}
+                                            {% if form.stock.errors %}
+                                                {% for error in form.stock.errors %}
+                                                    <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Category -->
+                                <div class="form-group mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-folder me-2" style="color: var(--primary);"></i>Category <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.category(class="form-select") }}
+                                    {% if form.category.errors %}
+                                        {% for error in form.category.errors %}
+                                            <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                <!-- SKU (Optional) -->
+                                <div class="form-group mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-barcode me-2" style="color: var(--primary);"></i>SKU (Stock Keeping Unit)
+                                    </label>
+                                    <input type="text" class="form-control" id="sku" name="sku" 
+                                           placeholder="Optional unique identifier for the product">
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-info-circle me-1"></i> Leave empty to auto-generate
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <!-- Image Upload Section -->
+                                <div class="image-upload-section mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-cloud-upload-alt me-2" style="color: var(--primary);"></i>Product Image
+                                    </label>
+                                    
+                                    <!-- Upload Options Tabs -->
+                                    <ul class="nav nav-tabs upload-tabs" id="imageTab" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab">
+                                                <i class="fas fa-upload"></i> Upload File
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="url-tab" data-bs-toggle="tab" data-bs-target="#url" type="button" role="tab">
+                                                <i class="fas fa-link"></i> Image URL
+                                            </button>
+                                        </li>
+                                    </ul>
+                                    
+                                    <div class="tab-content upload-content" id="imageTabContent">
+                                        <!-- Upload File Tab -->
+                                        <div class="tab-pane fade show active" id="upload" role="tabpanel">
+                                            <div class="upload-area" id="uploadArea">
+                                                <input type="file" id="product_image" name="product_image" accept="image/*" style="display: none;">
+                                                <div class="upload-placeholder text-center" onclick="document.getElementById('product_image').click()">
+                                                    <i class="fas fa-cloud-upload-alt fa-3x mb-2" style="color: var(--primary);"></i>
+                                                    <p class="mb-1"><strong>Click to upload</strong> or drag and drop</p>
+                                                    <small class="text-muted">PNG, JPG, JPEG up to 5MB</small>
+                                                </div>
+                                                <div id="uploadPreview" class="upload-preview" style="display: none;">
+                                                    <img id="previewImage" src="" alt="Preview">
+                                                    <button type="button" class="remove-image-btn" onclick="removeUploadedImage()">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Image URL Tab -->
+                                        <div class="tab-pane fade" id="url" role="tabpanel">
+                                            <div class="url-input-area">
+                                                {{ form.image_url(class="form-control", id="image_url", placeholder="https://example.com/product-image.jpg") }}
+                                                <small class="form-text text-muted mt-2">
+                                                    <i class="fas fa-info-circle me-1"></i> Enter a valid image URL
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if form.image_url.errors %}
+                                        {% for error in form.image_url.errors %}
+                                            <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                <!-- Image Preview Card -->
+                                <div class="info-card">
+                                    <div class="info-card-header">
+                                        <i class="fas fa-eye me-2" style="color: var(--primary);"></i>
+                                        <span class="fw-semibold">Live Preview</span>
+                                    </div>
+                                    <div class="info-card-body text-center" id="livePreview">
+                                        <div class="preview-placeholder">
+                                            <i class="fas fa-image fa-4x text-muted"></i>
+                                            <p class="text-muted mt-2 mb-0">Select an image to see preview</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tips Card -->
+                        <div class="alert-tips mb-4">
+                            <div class="d-flex">
+                                <i class="fas fa-lightbulb fa-2x me-3" style="color: var(--secondary);"></i>
+                                <div>
+                                    <strong class="d-block mb-1">Tips for a Great Product Listing</strong>
+                                    <small class="text-muted">✓ Use high-quality product images (recommended size: 800x800px)<br>
+                                    ✓ Write detailed, accurate descriptions<br>
+                                    ✓ Set competitive prices<br>
+                                    ✓ Keep stock levels updated</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <a href="{{ url_for('admin.products') }}" class="btn btn-outline-custom">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary-custom" id="submitBtn">
+                                <i class="fas fa-save me-2"></i> Add Product
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Form Card */
+    .form-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .card-header-custom {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        background: #FFFCF8;
+    }
+    
+    .card-body-custom {
+        padding: 2rem;
+    }
+    
+    /* Form Controls */
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 1px solid rgba(230,126,34,0.2);
+        padding: 0.75rem 1rem;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(230,126,34,0.1);
+    }
+    
+    .form-control-lg {
+        font-size: 1rem;
+    }
+    
+    .currency-symbol {
+        background: #FEF3E4;
+        border: 1px solid rgba(230,126,34,0.2);
+        border-right: none;
+        color: var(--primary);
+        font-weight: 600;
+    }
+    
+    /* Image Upload Section */
+    .image-upload-section {
+        background: #FEFEFE;
+        border-radius: 16px;
+        border: 1px solid rgba(230,126,34,0.1);
+        overflow: hidden;
+    }
+    
+    .upload-tabs {
+        border-bottom: 1px solid rgba(230,126,34,0.1);
+        background: #FFFCF8;
+        padding: 0;
+    }
+    
+    .upload-tabs .nav-link {
+        border: none;
+        padding: 0.75rem 1rem;
+        color: var(--slate);
+        font-weight: 500;
+        border-radius: 0;
+    }
+    
+    .upload-tabs .nav-link.active {
+        background: white;
+        color: var(--primary);
+        border-bottom: 2px solid var(--primary);
+    }
+    
+    .upload-content {
+        padding: 1rem;
+    }
+    
+    .upload-area {
+        border: 2px dashed rgba(230,126,34,0.3);
+        border-radius: 12px;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    
+    .upload-area:hover {
+        border-color: var(--primary);
+        background: rgba(230,126,34,0.02);
+    }
+    
+    .upload-placeholder {
+        padding: 2rem 1rem;
+        cursor: pointer;
+    }
+    
+    .upload-preview {
+        position: relative;
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    .upload-preview img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 12px;
+    }
+    
+    .remove-image-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #dc3545;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .remove-image-btn:hover {
+        transform: scale(1.1);
+    }
+    
+    .url-input-area {
+        padding: 0.5rem 0;
+    }
+    
+    /* Info Card */
+    .info-card {
+        background: #FEFEFE;
+        border-radius: 16px;
+        border: 1px solid rgba(230,126,34,0.1);
+        overflow: hidden;
+    }
+    
+    .info-card-header {
+        padding: 0.75rem 1rem;
+        background: #FFFCF8;
+        border-bottom: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .info-card-body {
+        padding: 1.5rem;
+    }
+    
+    .preview-placeholder {
+        padding: 2rem;
+        background: #FDF4E8;
+        border-radius: 12px;
+    }
+    
+    /* Alert Tips */
+    .alert-tips {
+        background: #FFF8F0;
+        border-left: 4px solid var(--secondary);
+        padding: 1rem;
+        border-radius: 12px;
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .card-body-custom {
+            padding: 1.25rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-actions .btn {
+            width: 100%;
+        }
+        
+        .info-card {
+            margin-top: 1rem;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-card {
+        animation: fadeIn 0.4s ease forwards;
+    }
+    
+    /* Loading State */
+    .btn-primary-custom.loading {
+        opacity: 0.7;
+        cursor: wait;
+    }
+    
+    .btn-primary-custom.loading i {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Drag and Drop Highlight */
+    .upload-area.drag-over {
+        border-color: var(--primary);
+        background: rgba(230,126,34,0.1);
+    }
+</style>
+
+<script>
+    // Tab switching and image handling
+    let uploadedImageData = null;
+    let urlImageData = null;
+    
+    // Handle file upload
+    const fileInput = document.getElementById('product_image');
+    const uploadArea = document.getElementById('uploadArea');
+    const uploadPlaceholder = document.querySelector('.upload-placeholder');
+    const uploadPreview = document.getElementById('uploadPreview');
+    const previewImage = document.getElementById('previewImage');
+    const livePreview = document.getElementById('livePreview');
+    const imageUrlInput = document.getElementById('image_url');
+    
+    // File upload handler
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    uploadedImageData = event.target.result;
+                    updateImagePreview(uploadedImageData, 'upload');
+                    // Clear URL image data
+                    urlImageData = null;
+                    if (imageUrlInput) imageUrlInput.value = '';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // URL input handler
+    if (imageUrlInput) {
+        imageUrlInput.addEventListener('input', function() {
+            const url = this.value.trim();
+            if (url) {
+                urlImageData = url;
+                updateImagePreview(url, 'url');
+                // Clear uploaded image data
+                uploadedImageData = null;
+                if (fileInput) fileInput.value = '';
+                if (uploadPreview) uploadPreview.style.display = 'none';
+                if (uploadPlaceholder) uploadPlaceholder.style.display = 'block';
+            } else {
+                urlImageData = null;
+                if (!uploadedImageData) {
+                    updateImagePreview(null);
+                }
+            }
+        });
+    }
+    
+    // Update image preview
+    function updateImagePreview(src, source) {
+        if (!src) {
+            livePreview.innerHTML = `
+                <div class="preview-placeholder">
+                    <i class="fas fa-image fa-4x text-muted"></i>
+                    <p class="text-muted mt-2 mb-0">Select an image to see preview</p>
+                </div>
+            `;
+            return;
+        }
+        
+        livePreview.innerHTML = `
+            <div class="text-center">
+                <img src="${src}" class="img-fluid" style="max-height: 200px; border-radius: 12px;" 
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Invalid+Image';">
+            </div>
+        `;
+        
+        // Update upload preview if from file
+        if (source === 'upload' && uploadPreview && previewImage) {
+            uploadPlaceholder.style.display = 'none';
+            uploadPreview.style.display = 'block';
+            previewImage.src = src;
+        }
+    }
+    
+    // Remove uploaded image
+    function removeUploadedImage() {
+        uploadedImageData = null;
+        if (fileInput) fileInput.value = '';
+        uploadPreview.style.display = 'none';
+        uploadPlaceholder.style.display = 'block';
+        if (!urlImageData) {
+            updateImagePreview(null);
+        }
+    }
+    
+    // Drag and drop functionality
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+        
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    uploadedImageData = event.target.result;
+                    updateImagePreview(uploadedImageData, 'upload');
+                    urlImageData = null;
+                    if (imageUrlInput) imageUrlInput.value = '';
+                };
+                reader.readAsDataURL(file);
+                if (fileInput) fileInput.files = e.dataTransfer.files;
+            }
+        });
+    }
+    
+    // Auto-generate SKU from product name
+    const nameInput = document.getElementById('name');
+    const skuInput = document.getElementById('sku');
+    
+    if (nameInput && skuInput) {
+        nameInput.addEventListener('blur', function() {
+            if (!skuInput.value.trim()) {
+                const name = this.value.trim();
+                if (name) {
+                    const sku = name
+                        .toUpperCase()
+                        .replace(/[^A-Z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, '')
+                        .substring(0, 20);
+                    skuInput.value = sku;
+                }
+            }
+        });
+    }
+    
+    // Form validation
+    const form = document.getElementById('addProductForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            // Validate required fields
+            const name = document.getElementById('name');
+            const price = document.getElementById('price');
+            const stock = document.getElementById('stock');
+            let hasError = false;
+            
+            if (name && !name.value.trim()) {
+                name.classList.add('is-invalid');
+                hasError = true;
+            }
+            
+            if (price && (!price.value.trim() || parseFloat(price.value) <= 0)) {
+                price.classList.add('is-invalid');
+                hasError = true;
+            }
+            
+            if (stock && (!stock.value.trim() || parseInt(stock.value) < 0)) {
+                stock.classList.add('is-invalid');
+                hasError = true;
+            }
+            
+            if (hasError) {
+                e.preventDefault();
+                return;
+            }
+            
+            // If image was uploaded via file, we need to send it as form data
+            // The form already has enctype="multipart/form-data"
+            // The file input will be sent automatically
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse me-2"></i> Adding Product...';
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        });
+    }
+    
+    // Real-time validation
+    const inputs = ['name', 'price', 'stock'];
+    inputs.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        }
+    });
+    
+    // Price validation
+    const priceInput = document.getElementById('price');
+    if (priceInput) {
+        priceInput.addEventListener('input', function() {
+            let value = parseFloat(this.value);
+            if (isNaN(value)) value = 0;
+            if (value < 0) this.value = 0;
+            if (this.value) {
+                this.value = value.toFixed(2);
+            }
+        });
+    }
+    
+    // Stock validation
+    const stockInput = document.getElementById('stock');
+    if (stockInput) {
+        stockInput.addEventListener('input', function() {
+            let value = parseInt(this.value);
+            if (isNaN(value)) value = 0;
+            if (value < 0) this.value = 0;
+        });
+    }
+    
+    // Make remove function global for onclick
+    window.removeUploadedImage = removeUploadedImage;
+</script>
+{% endblock %}

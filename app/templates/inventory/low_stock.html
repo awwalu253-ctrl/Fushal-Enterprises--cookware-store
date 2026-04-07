@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="fas fa-exclamation-triangle"></i> Low Stock Alert</h2>
+    
+    {% if products %}
+    <div class="alert alert-warning">
+        <strong>⚠️ Attention!</strong> The following products are running low on stock.
+    </div>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Current Stock</th>
+                <th>Threshold</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td class="{% if product.stock == 0 %}text-danger{% else %}text-warning{% endif %}">
+                    <strong>{{ product.stock }}</strong>
+                </td>
+                <td>{{ product.low_stock_threshold }}</td>
+                <td>
+                    {% if product.stock == 0 %}
+                        <span class="badge bg-danger">Out of Stock</span>
+                    {% else %}
+                        <span class="badge bg-warning">Low Stock</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('admin.edit_product', id=product.id) }}" class="btn btn-sm btn-primary">
+                        Restock Now
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> Great! No products are low on stock.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

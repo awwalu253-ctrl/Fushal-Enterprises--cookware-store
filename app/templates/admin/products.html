@@ -1,0 +1,587 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-boxes me-2" style="color: var(--primary);"></i>
+                    Manage <span style="color: var(--primary);">Products</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" style="color: var(--primary);">Admin</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Manage Products</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-box me-1"></i> {{ products|length }} Products Total
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <!-- Action Bar -->
+    <div class="action-bar mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('admin.add_product') }}" class="btn btn-primary-custom">
+                    <i class="fas fa-plus-circle me-2"></i> Add New Product
+                </a>
+                <button class="btn btn-outline-custom" onclick="exportProducts()">
+                    <i class="fas fa-download me-2"></i> Export
+                </button>
+            </div>
+            <div class="d-flex gap-2">
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchProducts" placeholder="Search products..." class="search-input">
+                </div>
+                <select id="stockFilter" class="filter-select">
+                    <option value="all">All Products</option>
+                    <option value="in_stock">In Stock</option>
+                    <option value="low_stock">Low Stock</option>
+                    <option value="out_of_stock">Out of Stock</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="products-table-container">
+        <div class="table-responsive">
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product Image</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    {% for product in products %}
+                    <tr class="product-row" data-stock="{{ product.stock }}" data-name="{{ product.name.lower() }}" data-category="{{ (product.category.name if product.category else '').lower() }}">
+                        <td data-label="ID">
+                            <span class="product-id">#{{ product.id }}</span>
+                        </td>
+                        <td data-label="Product Image">
+                            <div class="product-image-thumb">
+                                {% if product.image_url %}
+                                <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                                {% else %}
+                                <div class="no-image-thumb">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td data-label="Product Name">
+                            <div class="product-name-cell">
+                                <strong>{{ product.name }}</strong>
+                                <div class="product-sku">{{ product.sku or 'No SKU' }}</div>
+                            </div>
+                        </td>
+                        <td data-label="Category">
+                            <span class="category-tag">{{ product.category or 'Uncategorized' }}</span>
+                        </td>
+                        <td data-label="Price" class="price-cell">
+                            ${{ "%.2f"|format(product.price) }}
+                        </td>
+                        <td data-label="Stock">
+                            <div class="stock-cell {% if product.stock <= 0 %}out-of-stock{% elif product.stock < 10 %}low-stock{% endif %}">
+                                <i class="fas fa-box me-1"></i>
+                                {{ product.stock }} units
+                            </div>
+                        </td>
+                        <td data-label="Status">
+                            {% if product.stock <= 0 %}
+                            <span class="status-badge out-of-stock">
+                                <i class="fas fa-times-circle me-1"></i> Out of Stock
+                            </span>
+                            {% elif product.stock < 10 %}
+                            <span class="status-badge low-stock">
+                                <i class="fas fa-exclamation-triangle me-1"></i> Low Stock
+                            </span>
+                            {% else %}
+                            <span class="status-badge in-stock">
+                                <i class="fas fa-check-circle me-1"></i> In Stock
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Actions">
+                            <div class="action-buttons">
+                                <a href="{{ url_for('admin.edit_product', id=product.id) }}" class="btn-icon edit" title="Edit Product">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn-icon delete" onclick="confirmDelete({{ product.id }}, '{{ product.name|replace("'", "\\'") }}')" title="Delete Product">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <a href="{{ url_for('main.product_detail', product_id=product.id) }}" class="btn-icon view" target="_blank" title="View Product">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    {% if not products %}
+    <div class="empty-state text-center py-5">
+        <div class="empty-state-icon mb-4">
+            <i class="fas fa-box-open fa-5x" style="color: var(--primary); opacity: 0.5;"></i>
+        </div>
+        <h3 class="mb-3">No Products Yet</h3>
+        <p class="text-muted mb-4">Get started by adding your first product to the store.</p>
+        <a href="{{ url_for('admin.add_product') }}" class="btn btn-primary-custom">
+            <i class="fas fa-plus-circle me-2"></i> Add New Product
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Delete Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #dc3545;"></i>
+                <p class="mb-0">Are you sure you want to delete <strong id="deleteProductName"></strong>?</p>
+                <small class="text-muted">This action cannot be undone.</small>
+            </div>
+            <div class="modal-footer border-0 justify-content-center gap-3">
+                <button type="button" class="btn btn-outline-custom px-4" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger px-4">Delete Product</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Action Bar */
+    .action-bar {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 20px;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .search-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #FEF3E4;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(230,126,34,0.2);
+    }
+    
+    .search-wrapper i {
+        color: var(--primary);
+    }
+    
+    .search-input {
+        border: none;
+        background: transparent;
+        outline: none;
+        width: 200px;
+        font-size: 0.9rem;
+    }
+    
+    .filter-select {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        border: 1px solid rgba(230,126,34,0.2);
+        background: white;
+        color: var(--slate);
+        cursor: pointer;
+        outline: none;
+    }
+    
+    .filter-select:focus {
+        border-color: var(--primary);
+    }
+    
+    /* Products Table */
+    .products-table-container {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .products-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .products-table th {
+        padding: 1rem 1rem;
+        background: #FFFCF8;
+        font-weight: 600;
+        color: var(--slate);
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        font-size: 0.85rem;
+    }
+    
+    .products-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(230,126,34,0.08);
+        vertical-align: middle;
+    }
+    
+    .products-table tr:hover {
+        background: rgba(230,126,34,0.02);
+    }
+    
+    .product-id {
+        font-weight: 700;
+        color: var(--primary);
+        font-family: monospace;
+    }
+    
+    /* Product Image Thumbnail */
+    .product-image-thumb {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #FDF4E8;
+    }
+    
+    .product-image-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .no-image-thumb {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #F5F0E8;
+        color: #999;
+        font-size: 1.2rem;
+    }
+    
+    /* Product Name Cell */
+    .product-name-cell {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .product-sku {
+        font-size: 0.7rem;
+        color: var(--slate-light);
+        font-family: monospace;
+    }
+    
+    /* Category Tag */
+    .category-tag {
+        background: #FEF3E4;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        color: var(--primary-dark);
+        display: inline-block;
+    }
+    
+    .price-cell {
+        font-weight: 700;
+        color: var(--primary-dark);
+        font-size: 1rem;
+    }
+    
+    /* Stock Cell */
+    .stock-cell {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .stock-cell.low-stock {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+    
+    .stock-cell.out-of-stock {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.in-stock {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .status-badge.low-stock {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+    
+    .status-badge.out-of-stock {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-icon.edit {
+        background: #FEF3E4;
+        color: var(--primary);
+    }
+    
+    .btn-icon.edit:hover {
+        background: var(--primary);
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .btn-icon.delete {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    .btn-icon.delete:hover {
+        background: #C62828;
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .btn-icon.view {
+        background: #E3F2FD;
+        color: #1565C0;
+    }
+    
+    .btn-icon.view:hover {
+        background: #1565C0;
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        background: white;
+        border-radius: 28px;
+        padding: 3rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    /* Responsive Table */
+    @media (max-width: 768px) {
+        .products-table thead {
+            display: none;
+        }
+        
+        .products-table tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(230,126,34,0.1);
+            border-radius: 16px;
+            padding: 1rem;
+        }
+        
+        .products-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed rgba(230,126,34,0.08);
+        }
+        
+        .products-table td:last-child {
+            border-bottom: none;
+        }
+        
+        .products-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--slate-light);
+            width: 40%;
+        }
+        
+        .action-buttons {
+            justify-content: flex-end;
+        }
+        
+        .search-wrapper {
+            width: 100%;
+        }
+        
+        .search-input {
+            width: 100%;
+        }
+        
+        .action-bar .d-flex {
+            width: 100%;
+        }
+        
+        .action-bar .d-flex.gap-2:first-child {
+            flex-direction: column;
+        }
+        
+        .action-bar .d-flex.gap-2:last-child {
+            flex-direction: column;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .product-row {
+        animation: fadeInUp 0.3s ease forwards;
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+</style>
+
+<script>
+    // Search functionality
+    const searchInput = document.getElementById('searchProducts');
+    const stockFilter = document.getElementById('stockFilter');
+    const rows = document.querySelectorAll('.product-row');
+    
+    function filterProducts() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const filterValue = stockFilter ? stockFilter.value : 'all';
+        
+        rows.forEach(row => {
+            const productName = row.dataset.name || '';
+            const productCategory = row.dataset.category || '';
+            const stock = parseInt(row.dataset.stock);
+            
+            let matchesSearch = productName.includes(searchTerm) || productCategory.includes(searchTerm);
+            let matchesFilter = true;
+            
+            if (filterValue === 'in_stock') {
+                matchesFilter = stock > 10;
+            } else if (filterValue === 'low_stock') {
+                matchesFilter = stock > 0 && stock <= 10;
+            } else if (filterValue === 'out_of_stock') {
+                matchesFilter = stock === 0;
+            }
+            
+            if (matchesSearch && matchesFilter) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('keyup', filterProducts);
+    }
+    
+    if (stockFilter) {
+        stockFilter.addEventListener('change', filterProducts);
+    }
+    
+    // Delete confirmation
+    let deleteId = null;
+    
+    function confirmDelete(productId, productName) {
+        deleteId = productId;
+        const nameSpan = document.getElementById('deleteProductName');
+        if (nameSpan) {
+            nameSpan.textContent = productName;
+        }
+        const deleteBtn = document.getElementById('confirmDeleteBtn');
+        if (deleteBtn) {
+            // Fix: Use the correct URL with the product ID
+            deleteBtn.href = "/admin/delete-product/" + productId;
+        }
+        const modalElement = document.getElementById('deleteModal');
+        if (modalElement) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        }
+    }
+    
+    // Export products
+    function exportProducts() {
+        window.location.href = "{{ url_for('admin.export_products') }}";
+    }
+    
+    // Quick stock status update (visual)
+    document.querySelectorAll('.stock-cell').forEach(cell => {
+        const stockText = cell.textContent;
+        const stockMatch = stockText.match(/\d+/);
+        if (stockMatch) {
+            const stock = parseInt(stockMatch[0]);
+            if (stock === 0) {
+                cell.classList.add('out-of-stock');
+            } else if (stock < 10) {
+                cell.classList.add('low-stock');
+            }
+        }
+    });
+</script>
+{% endblock %}

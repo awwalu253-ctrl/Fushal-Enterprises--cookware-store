@@ -1,0 +1,434 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-edit me-2" style="color: var(--primary);"></i>
+                    Edit <span style="color: var(--primary);">Category</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" style="color: var(--primary);">Admin</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.categories') }}" style="color: var(--primary);">Categories</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Edit Category</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-tag me-1"></i> Category ID: #{{ category.id }}
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-card">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-folder-edit me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Edit Category: {{ category.name }}</h5>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <form method="POST" id="editCategoryForm">
+                        <!-- Category Name -->
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-tag me-2" style="color: var(--primary);"></i>Category Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="name" name="name" 
+                                   value="{{ category.name }}" required autofocus>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i> This will be displayed to customers
+                            </small>
+                        </div>
+
+                        <!-- Slug (URL) -->
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-link me-2" style="color: var(--primary);"></i>Slug (URL)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text slug-prefix">/category/</span>
+                                <input type="text" class="form-control" id="slug" name="slug" 
+                                       value="{{ category.slug or '' }}" placeholder="auto-generated-from-name">
+                            </div>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-globe me-1"></i> SEO-friendly URL. Leave empty to auto-generate from name.
+                            </small>
+                        </div>
+
+                        <!-- Category Icon -->
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-icons me-2" style="color: var(--primary);"></i>Category Icon
+                            </label>
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <select class="form-select" id="icon" name="icon">
+                                        <option value="fa-folder" {% if category.icon == 'fa-folder' %}selected{% endif %}>📁 Folder (Default)</option>
+                                        <option value="fa-kitchen-set" {% if category.icon == 'fa-kitchen-set' %}selected{% endif %}>🍳 Kitchen Set</option>
+                                        <option value="fa-utensils" {% if category.icon == 'fa-utensils' %}selected{% endif %}>🍴 Utensils</option>
+                                        <option value="fa-knife-kitchen" {% if category.icon == 'fa-knife-kitchen' %}selected{% endif %}>🔪 Knife</option>
+                                        <option value="fa-frying-pan" {% if category.icon == 'fa-frying-pan' %}selected{% endif %}>🍳 Frying Pan</option>
+                                        <option value="fa-mug-hot" {% if category.icon == 'fa-mug-hot' %}selected{% endif %}>☕ Mug/Hot Drinks</option>
+                                        <option value="fa-cake-candles" {% if category.icon == 'fa-cake-candles' %}selected{% endif %}>🎂 Bakeware</option>
+                                        <option value="fa-blender" {% if category.icon == 'fa-blender' %}selected{% endif %}>🥤 Blender</option>
+                                        <option value="fa-mixer" {% if category.icon == 'fa-mixer' %}selected{% endif %}>🥣 Mixer</option>
+                                        <option value="fa-jug-detergent" {% if category.icon == 'fa-jug-detergent' %}selected{% endif %}>🧴 Jug/Container</option>
+                                        <option value="fa-spoon" {% if category.icon == 'fa-spoon' %}selected{% endif %}>🥄 Spoon</option>
+                                        <option value="fa-chopsticks" {% if category.icon == 'fa-chopsticks' %}selected{% endif %}>🥢 Chopsticks</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="icon-preview">
+                                        <i class="fas {{ category.icon or 'fa-folder' }} fa-2x" id="iconPreview" style="color: var(--primary);"></i>
+                                        <span class="small text-muted">Preview</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-2" style="color: var(--primary);"></i>Description (Optional)
+                            </label>
+                            <textarea class="form-control" id="description" name="description" rows="4" 
+                                      placeholder="Brief description of this category...">{{ category.description or '' }}</textarea>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i> A short description helps customers understand what this category offers
+                            </small>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-toggle-on me-2" style="color: var(--primary);"></i>Status
+                            </label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                       {% if category.is_active %}checked{% endif %}>
+                                <label class="form-check-label" for="is_active">
+                                    <span id="statusLabel">{% if category.is_active %}Active{% else %}Inactive{% endif %}</span>
+                                    <small class="text-muted d-block">Active categories will be visible to customers</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Products Info Card -->
+                        <div class="products-info-card mb-4">
+                            <div class="d-flex align-items-center">
+                                <div class="products-icon">
+                                    <i class="fas fa-boxes"></i>
+                                </div>
+                                <div class="products-details">
+                                    <strong class="d-block">Products in this category</strong>
+                                    <span class="products-count">{{ category.products|length if category.products else 0 }} products</span>
+                                </div>
+                                {% if category.products|length > 0 %}
+                                <a href="{{ url_for('admin.products', category=category.id) }}" class="btn-view-products ms-auto">
+                                    View Products <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Warning if category has products -->
+                        {% if category.products|length > 0 %}
+                        <div class="alert-warning-custom mb-4">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Note:</strong> This category has {{ category.products|length }} product(s). Changes to the category name will affect all associated products.
+                        </div>
+                        {% endif %}
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <a href="{{ url_for('admin.categories') }}" class="btn btn-outline-custom">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary-custom" id="submitBtn">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Form Card */
+    .form-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .card-header-custom {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        background: #FFFCF8;
+    }
+    
+    .card-body-custom {
+        padding: 2rem;
+    }
+    
+    /* Form Controls */
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 1px solid rgba(230,126,34,0.2);
+        padding: 0.75rem 1rem;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(230,126,34,0.1);
+    }
+    
+    .form-control-lg {
+        font-size: 1rem;
+    }
+    
+    /* Slug Input */
+    .slug-prefix {
+        background: #FEF3E4;
+        border: 1px solid rgba(230,126,34,0.2);
+        border-right: none;
+        color: var(--primary-dark);
+        font-family: monospace;
+    }
+    
+    /* Icon Preview */
+    .icon-preview {
+        text-align: center;
+        padding: 0.5rem;
+        background: #FEF3E4;
+        border-radius: 12px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Products Info Card */
+    .products-info-card {
+        background: #F8F9FA;
+        border-radius: 16px;
+        padding: 1rem;
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .products-icon {
+        width: 50px;
+        height: 50px;
+        background: #FEF3E4;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--primary);
+        margin-right: 1rem;
+    }
+    
+    .products-count {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    .btn-view-products {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .btn-view-products:hover {
+        text-decoration: underline;
+    }
+    
+    /* Alert Warning */
+    .alert-warning-custom {
+        background: #FFF3E0;
+        border-left: 4px solid #ffc107;
+        padding: 1rem;
+        border-radius: 12px;
+        color: #856404;
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    /* Switch Styling */
+    .form-check-input:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .card-body-custom {
+            padding: 1.25rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-actions .btn {
+            width: 100%;
+        }
+        
+        .icon-preview {
+            margin-top: 0.5rem;
+        }
+        
+        .products-info-card .d-flex {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .btn-view-products {
+            margin-top: 0.5rem;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-card {
+        animation: fadeIn 0.4s ease forwards;
+    }
+    
+    /* Loading State */
+    .btn-primary-custom.loading {
+        opacity: 0.7;
+        cursor: wait;
+    }
+    
+    .btn-primary-custom.loading i {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+    // Auto-generate slug from name if slug is empty
+    const nameInput = document.getElementById('name');
+    const slugInput = document.getElementById('slug');
+    const originalSlug = slugInput ? slugInput.value : '';
+    
+    if (nameInput && slugInput) {
+        nameInput.addEventListener('blur', function() {
+            if (!slugInput.value.trim() || slugInput.value === originalSlug) {
+                const name = this.value.trim();
+                if (name) {
+                    const slug = name
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, '');
+                    slugInput.value = slug;
+                }
+            }
+        });
+    }
+    
+    // Icon preview
+    const iconSelect = document.getElementById('icon');
+    const iconPreview = document.getElementById('iconPreview');
+    
+    if (iconSelect && iconPreview) {
+        iconSelect.addEventListener('change', function() {
+            const selectedIcon = this.value;
+            iconPreview.className = `fas ${selectedIcon} fa-2x`;
+            iconPreview.style.color = 'var(--primary)';
+        });
+    }
+    
+    // Status toggle label
+    const statusToggle = document.getElementById('is_active');
+    const statusLabel = document.getElementById('statusLabel');
+    
+    if (statusToggle && statusLabel) {
+        statusToggle.addEventListener('change', function() {
+            if (this.checked) {
+                statusLabel.textContent = 'Active';
+                statusLabel.style.color = '#2E7D32';
+            } else {
+                statusLabel.textContent = 'Inactive';
+                statusLabel.style.color = '#C62828';
+            }
+        });
+    }
+    
+    // Form submission with loading state
+    const form = document.getElementById('editCategoryForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            // Validate name
+            const name = nameInput.value.trim();
+            if (!name) {
+                e.preventDefault();
+                nameInput.classList.add('is-invalid');
+                return;
+            }
+            nameInput.classList.remove('is-invalid');
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse me-2"></i> Saving Changes...';
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        });
+    }
+    
+    // Real-time validation
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
+</script>
+{% endblock %}

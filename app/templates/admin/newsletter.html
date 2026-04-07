@@ -1,0 +1,729 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-envelope-open-text me-2" style="color: var(--primary);"></i>
+                    Newsletter <span style="color: var(--primary);">Management</span>
+                </h1>
+                <p class="text-muted mt-2 mb-0">Manage subscribers and send email campaigns</p>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-users me-1"></i> {{ total_subscribers }} Total Subscribers
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container-fluid px-4 my-4">
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4 col-sm-6">
+            <div class="stat-card stat-card-total">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <p class="stat-label">Total Subscribers</p>
+                    <h3 class="stat-number">{{ total_subscribers }}</h3>
+                    <div class="stat-trend">
+                        <span class="trend-up"><i class="fas fa-arrow-up"></i> All Time</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="stat-card stat-card-active">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <p class="stat-label">Active Subscribers</p>
+                    <h3 class="stat-number">{{ active_subscribers }}</h3>
+                    <div class="stat-trend">
+                        <span class="trend-up"><i class="fas fa-arrow-up"></i> Receiving emails</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="stat-card stat-card-inactive">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <p class="stat-label">Unsubscribed</p>
+                    <h3 class="stat-number">{{ inactive_subscribers }}</h3>
+                    <div class="stat-trend">
+                        <span class="trend-down"><i class="fas fa-arrow-down"></i> Not receiving</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="filters-card mb-4">
+        <div class="filters-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchSubscriber" class="search-input" placeholder="Search by email...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select id="statusFilter" class="form-select filter-select">
+                        <option value="all">All Subscribers</option>
+                        <option value="active">Active Only</option>
+                        <option value="inactive">Unsubscribed Only</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary-custom w-100" onclick="exportSubscribers()">
+                        <i class="fas fa-download me-2"></i> Export CSV
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-custom w-100" onclick="resetFilters()">
+                        <i class="fas fa-sync-alt me-2"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscriber List Card -->
+    <div class="subscribers-card mb-4">
+        <div class="card-header-custom">
+            <div>
+                <i class="fas fa-list me-2" style="color: var(--primary);"></i>
+                <h5 class="mb-0 fw-bold">Subscriber List</h5>
+            </div>
+            <div class="table-info">
+                <span class="info-badge"><i class="fas fa-envelope"></i> {{ active_subscribers }} Active</span>
+                <span class="info-badge"><i class="fas fa-ban"></i> {{ inactive_subscribers }} Inactive</span>
+            </div>
+        </div>
+        <div class="card-body-custom p-0">
+            <div class="table-responsive">
+                <table class="subscribers-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Email Address</th>
+                            <th>Subscribed Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subscribersTableBody">
+                        {% for sub in subscribers %}
+                        <tr class="subscriber-row" data-status="{% if sub.is_active %}active{% else %}inactive{% endif %}" data-email="{{ sub.email.lower() }}">
+                            <td data-label="ID">
+                                <span class="subscriber-id">#{{ sub.id }}</span>
+                            </td>
+                            <td data-label="Email Address">
+                                <div class="subscriber-email">
+                                    <i class="fas fa-envelope me-2" style="color: var(--primary);"></i>
+                                    {{ sub.email }}
+                                </div>
+                            </td>
+                            <td data-label="Subscribed Date">
+                                <div class="subscribed-date">
+                                    <i class="far fa-calendar-alt me-1" style="color: var(--primary);"></i>
+                                    {{ sub.subscribed_at.strftime('%b %d, %Y at %I:%M %p') }}
+                                </div>
+                            </td>
+                            <td data-label="Status">
+                                {% if sub.is_active %}
+                                <span class="status-badge active">
+                                    <i class="fas fa-check-circle"></i> Active
+                                </span>
+                                {% else %}
+                                <span class="status-badge inactive">
+                                    <i class="fas fa-times-circle"></i> Unsubscribed
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td data-label="Actions">
+                                <div class="action-buttons">
+                                    {% if sub.is_active %}
+                                    <button class="btn-action unsubscribe" onclick="unsubscribe({{ sub.id }}, '{{ sub.email }}')" title="Remove Subscriber">
+                                        <i class="fas fa-user-minus"></i>
+                                    </button>
+                                    {% else %}
+                                    <button class="btn-action resubscribe" onclick="resubscribe({{ sub.id }}, '{{ sub.email }}')" title="Resubscribe">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
+                                    {% endif %}
+                                    <button class="btn-action email" onclick="sendTestEmail('{{ sub.email }}')" title="Send Test Email">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if not subscribers %}
+            <div class="empty-state text-center py-5">
+                <div class="empty-icon">
+                    <i class="fas fa-envelope-open-text fa-4x"></i>
+                </div>
+                <h5 class="mt-3 mb-2">No Subscribers Yet</h5>
+                <p class="text-muted">Subscribers will appear here when they sign up for the newsletter.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Send Newsletter Card -->
+    <div class="send-newsletter-card">
+        <div class="card-header-custom">
+            <div>
+                <i class="fas fa-paper-plane me-2" style="color: var(--primary);"></i>
+                <h5 class="mb-0 fw-bold">Send Newsletter Email</h5>
+            </div>
+            <div class="campaign-info">
+                <i class="fas fa-info-circle me-1"></i>
+                Will be sent to <strong>{{ active_subscribers }}</strong> active subscribers
+            </div>
+        </div>
+        <div class="card-body-custom">
+            <form method="POST" action="{{ url_for('admin.send_newsletter') }}" id="newsletterForm">
+                <div class="form-group mb-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-heading me-2" style="color: var(--primary);"></i>Email Subject
+                    </label>
+                    <input type="text" class="form-control form-control-lg" id="subject" name="subject" 
+                           placeholder="e.g., Special Offer Just for You!" required>
+                </div>
+                
+                <div class="form-group mb-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-edit me-2" style="color: var(--primary);"></i>Email Message (HTML supported)
+                    </label>
+                    <textarea class="form-control" id="message" name="message" rows="12" 
+                              placeholder="Write your newsletter content here. HTML formatting is supported..." required></textarea>
+                    <div class="form-text mt-2">
+                        <i class="fas fa-info-circle me-1"></i> 
+                        You can use HTML tags for formatting. Example: 
+                        <code>&lt;b&gt;bold&lt;/b&gt;</code>, 
+                        <code>&lt;h1&gt;Heading&lt;/h1&gt;</code>,
+                        <code>&lt;div style="color: #E67E22;"&gt;Colored text&lt;/div&gt;</code>
+                    </div>
+                </div>
+                
+                <div class="form-group mb-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-eye me-2" style="color: var(--primary);"></i>Preview
+                    </label>
+                    <div id="email-preview" class="email-preview">
+                        <div class="preview-placeholder">
+                            <i class="fas fa-eye"></i>
+                            <p>Click "Preview" to see how your email will look</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-custom btn-sm mt-2" onclick="previewEmail()">
+                        <i class="fas fa-eye me-1"></i> Preview Email
+                    </button>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline-custom" onclick="previewAndConfirm()">
+                        <i class="fas fa-eye me-2"></i> Preview & Confirm
+                    </button>
+                    <button type="submit" class="btn btn-primary-custom" id="sendBtn">
+                        <i class="fas fa-paper-plane me-2"></i> Send to {{ active_subscribers }} Subscribers
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0" style="background: linear-gradient(135deg, #FFF8F0 0%, #FFF2E6 100%);">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-paper-plane me-2" style="color: var(--primary);"></i>
+                    Send Newsletter
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center py-3">
+                    <i class="fas fa-envelope fa-3x mb-3" style="color: var(--primary);"></i>
+                    <p>Are you sure you want to send this newsletter to <strong id="confirmCount">{{ active_subscribers }}</strong> active subscribers?</p>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        This action cannot be undone. The email will be sent immediately.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary-custom" id="confirmSendBtn">
+                    <i class="fas fa-paper-plane me-2"></i> Yes, Send Now
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0" style="background: linear-gradient(135deg, #FFF8F0 0%, #FFF2E6 100%);">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-eye me-2" style="color: var(--primary);"></i>
+                    Email Preview
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Statistics Cards */
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+        transition: all 0.3s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(230,126,34,0.12);
+    }
+    
+    .stat-icon-wrapper {
+        background: #FEF3E4;
+        border-radius: 16px;
+        padding: 0.75rem;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .stat-card-total .stat-icon { color: var(--primary); }
+    .stat-card-active .stat-icon { color: #28a745; }
+    .stat-card-inactive .stat-icon { color: #dc3545; }
+    
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 0;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--slate-light);
+        margin-bottom: 0;
+    }
+    
+    .trend-up { color: #28a745; font-weight: 600; }
+    .trend-down { color: #dc3545; font-weight: 600; }
+    
+    /* Filters Card */
+    .filters-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.25rem;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .search-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #FEF3E4;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(230,126,34,0.2);
+    }
+    
+    .search-wrapper i { color: var(--primary); }
+    .search-input {
+        border: none;
+        background: transparent;
+        outline: none;
+        width: 100%;
+    }
+    
+    .filter-select {
+        border-radius: 50px;
+        border: 1px solid rgba(230,126,34,0.2);
+        padding: 0.5rem 1rem;
+    }
+    
+    /* Subscribers Card */
+    .subscribers-card, .send-newsletter-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .card-header-custom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        background: #FFFCF8;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .card-body-custom { padding: 1.5rem; }
+    
+    .table-info {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .info-badge {
+        background: #FEF3E4;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        color: var(--primary-dark);
+    }
+    
+    /* Subscribers Table */
+    .subscribers-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .subscribers-table th {
+        padding: 1rem;
+        background: #FFFCF8;
+        font-weight: 600;
+        color: var(--slate);
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        font-size: 0.85rem;
+    }
+    
+    .subscribers-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(230,126,34,0.08);
+        vertical-align: middle;
+    }
+    
+    .subscribers-table tr:hover { background: rgba(230,126,34,0.02); }
+    
+    .subscriber-id {
+        font-weight: 700;
+        color: var(--primary);
+        font-family: monospace;
+    }
+    
+    .subscriber-email { font-size: 0.9rem; }
+    .subscribed-date { font-size: 0.85rem; color: var(--slate-light); }
+    
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.active {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .status-badge.inactive {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-action {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-action.unsubscribe {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    .btn-action.unsubscribe:hover {
+        background: #C62828;
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .btn-action.resubscribe {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .btn-action.resubscribe:hover {
+        background: #2E7D32;
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .btn-action.email {
+        background: #E3F2FD;
+        color: #1565C0;
+    }
+    
+    .btn-action.email:hover {
+        background: #1565C0;
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    /* Email Preview */
+    .email-preview {
+        background: #F8F9FA;
+        border-radius: 16px;
+        min-height: 200px;
+        border: 1px solid rgba(230,126,34,0.1);
+        overflow: hidden;
+    }
+    
+    .preview-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        color: var(--slate-light);
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .subscribers-table thead { display: none; }
+        .subscribers-table tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(230,126,34,0.1);
+            border-radius: 16px;
+            padding: 1rem;
+        }
+        .subscribers-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed rgba(230,126,34,0.08);
+        }
+        .subscribers-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--slate-light);
+            width: 40%;
+        }
+        .action-buttons { justify-content: flex-end; }
+        .form-actions { flex-direction: column; }
+        .form-actions .btn { width: 100%; }
+        .card-header-custom { flex-direction: column; text-align: center; }
+        .table-info { justify-content: center; }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .stat-card, .subscribers-card, .send-newsletter-card {
+        animation: fadeInUp 0.4s ease forwards;
+    }
+</style>
+
+<script>
+    function unsubscribe(id, email) {
+        if (confirm(`Remove ${email} from newsletter?`)) {
+            fetch(`/admin/newsletter/unsubscribe/${id}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            }).then(() => location.reload());
+        }
+    }
+    
+    function resubscribe(id, email) {
+        if (confirm(`Resubscribe ${email} to newsletter?`)) {
+            fetch(`/admin/newsletter/resubscribe/${id}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            }).then(() => location.reload());
+        }
+    }
+    
+    function sendTestEmail(email) {
+        const subject = document.getElementById('subject').value;
+        const message = document.getElementById('message').value;
+        
+        if (!subject || !message) {
+            alert('Please enter a subject and message before sending a test email.');
+            return;
+        }
+        
+        fetch('/admin/newsletter/send-test', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email: email, subject: subject, message: message })
+        }).then(() => {
+            alert(`Test email sent to ${email}`);
+        }).catch(() => {
+            alert('Error sending test email.');
+        });
+    }
+    
+    function previewEmail() {
+        const subject = document.getElementById('subject').value;
+        const message = document.getElementById('message').value;
+        
+        if (!message) {
+            alert('Please enter a message to preview.');
+            return;
+        }
+        
+        const previewContent = document.getElementById('previewContent');
+        previewContent.innerHTML = `
+            <div class="email-preview-container" style="padding: 20px;">
+                <div style="background: linear-gradient(135deg, #E67E22, #F39C12); padding: 20px; text-align: center; border-radius: 12px 12px 0 0;">
+                    <h3 style="color: white; margin: 0;">${escapeHtml(subject) || 'No Subject'}</h3>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 0 0 12px 12px; border: 1px solid #eee;">
+                    ${message}
+                </div>
+            </div>
+        `;
+        
+        new bootstrap.Modal(document.getElementById('previewModal')).show();
+    }
+    
+    function previewAndConfirm() {
+        const subject = document.getElementById('subject').value;
+        const message = document.getElementById('message').value;
+        
+        if (!subject || !message) {
+            alert('Please fill in both subject and message.');
+            return;
+        }
+        
+        document.getElementById('confirmCount').textContent = '{{ active_subscribers }}';
+        new bootstrap.Modal(document.getElementById('confirmModal')).show();
+    }
+    
+    // Search and Filter
+    const searchInput = document.getElementById('searchSubscriber');
+    const statusFilter = document.getElementById('statusFilter');
+    const rows = document.querySelectorAll('.subscriber-row');
+    
+    function filterTable() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const filterValue = statusFilter ? statusFilter.value : 'all';
+        
+        rows.forEach(row => {
+            const email = row.dataset.email || '';
+            const status = row.dataset.status || '';
+            
+            const matchesSearch = email.includes(searchTerm);
+            const matchesFilter = filterValue === 'all' || status === filterValue;
+            
+            row.style.display = matchesSearch && matchesFilter ? '' : 'none';
+        });
+    }
+    
+    if (searchInput) searchInput.addEventListener('keyup', filterTable);
+    if (statusFilter) statusFilter.addEventListener('change', filterTable);
+    
+    function resetFilters() {
+        if (searchInput) searchInput.value = '';
+        if (statusFilter) statusFilter.value = 'all';
+        filterTable();
+    }
+    
+    function exportSubscribers() {
+    window.location.href = "{{ url_for('admin.export_newsletter') }}";
+}
+    
+    document.getElementById('confirmSendBtn').addEventListener('click', function() {
+        document.getElementById('newsletterForm').submit();
+    });
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
+{% endblock %}

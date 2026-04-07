@@ -1,0 +1,479 @@
+<div id="chat-widget" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+    <!-- Chat Toggle Button with Bouncing Animation -->
+    <div id="chat-toggle"
+        style="background: linear-gradient(135deg, #E67E22 0%, #F39C12 100%); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(230,126,34,0.4); transition: all 0.3s ease; position: relative; animation: bounce 1.5s ease infinite;">
+        <i class="fas fa-comments fa-2x"></i>
+        <span id="chat-badge"
+            style="position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; display: none;">0</span>
+    </div>
+
+    <!-- Chat Window -->
+    <div id="chat-window"
+        style="display: none; position: absolute; bottom: 80px; right: 0; width: 380px; height: 550px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; flex-direction: column; animation: slideUp 0.3s ease;">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #E67E22 0%, #F39C12 100%); color: white; padding: 18px 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div
+                        style="width: 35px; height: 35px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-headset fa-lg"></i>
+                    </div>
+                    <div>
+                        <strong style="font-size: 16px;">Customer Support</strong>
+                        <div style="font-size: 11px; opacity: 0.9;">We're here to help!</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: flex; align-items: center; gap: 4px;">
+                        <i class="fas fa-circle"
+                            style="color: #4ade80; font-size: 8px; animation: pulse 2s infinite;"></i>
+                        <span style="font-size: 11px;">Online</span>
+                    </span>
+                    <button id="chat-close"
+                        style="background: none; border: none; color: white; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div style="font-size: 10px; opacity: 0.8; margin-top: 8px;">
+                <i class="fas fa-clock me-1"></i> Typically reply within minutes
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 15px; background: #FFF8F0;">
+            <div class="text-center text-muted" style="padding: 40px 20px;">
+                <i class="fas fa-comments fa-3x mb-2" style="color: #E67E22; opacity: 0.3;"></i>
+                <p>Loading messages...</p>
+            </div>
+        </div>
+
+        <!-- Quick Replies -->
+        <div id="quick-replies"
+            style="display: none; padding: 10px; background: #FFF8F0; border-top: 1px solid rgba(230,126,34,0.1); overflow-x: auto; white-space: nowrap;">
+            <span class="quick-reply" data-message="Hello! I need help with my order">📦 Order Status</span>
+            <span class="quick-reply" data-message="I have a question about shipping">🚚 Shipping Info</span>
+            <span class="quick-reply" data-message="I want to return a product">🔄 Returns</span>
+            <span class="quick-reply" data-message="I need product information">ℹ️ Product Info</span>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typing-indicator"
+            style="display: none; padding: 8px 15px; background: #FFF8F0; font-size: 12px; color: #E67E22;">
+            <i class="fas fa-ellipsis-h fa-fw"></i> Admin is typing...
+        </div>
+
+        <!-- Input Area -->
+        <div style="padding: 12px; border-top: 1px solid rgba(230,126,34,0.15); background: white;">
+            <div style="display: flex; gap: 10px;">
+                <button id="chat-attach"
+                    style="background: none; border: none; color: #E67E22; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                <input type="text" id="chat-input" placeholder="Type your message..."
+                    style="flex: 1; padding: 10px 15px; border: 1px solid rgba(230,126,34,0.2); border-radius: 25px; outline: none; font-size: 14px; transition: all 0.2s;">
+                <button id="chat-send"
+                    style="background: linear-gradient(135deg, #E67E22 0%, #F39C12 100%); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div style="font-size: 10px; color: #999; text-align: center; margin-top: 8px;">
+                Powered by Awwal Investment Support
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Bouncing Animation */
+    @keyframes bounce {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Slide Up Animation */
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Pulse Animation for Online Status */
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+    }
+
+    /* Hover Effect */
+    #chat-toggle:hover {
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 8px 25px rgba(230, 126, 34, 0.5);
+        animation: none;
+    }
+
+    /* Chat Window Scrollbar */
+    #chat-messages::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    #chat-messages::-webkit-scrollbar-track {
+        background: #FEF3E4;
+        border-radius: 5px;
+    }
+
+    #chat-messages::-webkit-scrollbar-thumb {
+        background: #E67E22;
+        border-radius: 5px;
+    }
+
+    /* Message Bubbles */
+    .message-bubble {
+        max-width: 85%;
+        margin-bottom: 12px;
+        clear: both;
+        animation: slideUp 0.2s ease;
+    }
+
+    .message-user {
+        float: right;
+    }
+
+    .message-user .bubble {
+        background: linear-gradient(135deg, #E67E22 0%, #F39C12 100%);
+        color: white;
+        border-radius: 18px 18px 5px 18px;
+    }
+
+    .message-admin {
+        float: left;
+    }
+
+    .message-admin .bubble {
+        background: #FEF3E4;
+        color: #2C3E50;
+        border-radius: 18px 18px 18px 5px;
+    }
+
+    .bubble {
+        padding: 10px 14px;
+        word-wrap: break-word;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .time {
+        font-size: 9px;
+        margin-top: 5px;
+        opacity: 0.7;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .message-user .time {
+        justify-content: flex-end;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .message-admin .time {
+        color: #999;
+    }
+
+    /* Quick Replies */
+    .quick-reply {
+        display: inline-block;
+        background: white;
+        border: 1px solid #E67E22;
+        color: #E67E22;
+        padding: 6px 14px;
+        border-radius: 25px;
+        font-size: 12px;
+        margin-right: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .quick-reply:hover {
+        background: #E67E22;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Button Hover Effects */
+    #chat-attach:hover {
+        background: #FEF3E4;
+        transform: scale(1.05);
+    }
+
+    #chat-send:hover {
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
+    }
+
+    #chat-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    /* Input Focus */
+    #chat-input:focus {
+        border-color: #E67E22;
+        box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.1);
+    }
+
+    /* Prevent Body Scroll Class */
+    body.chat-open {
+        overflow: hidden !important;
+        position: fixed;
+        width: 100%;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 480px) {
+        #chat-window {
+            width: calc(100vw - 40px);
+            height: calc(100vh - 100px);
+            bottom: 70px;
+            right: 20px;
+            left: 20px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggle = document.getElementById('chat-toggle');
+        const chatWindow = document.getElementById('chat-window');
+        const messagesDiv = document.getElementById('chat-messages');
+        const input = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('chat-send');
+        const closeBtn = document.getElementById('chat-close');
+        const quickRepliesDiv = document.getElementById('quick-replies');
+        const typingIndicator = document.getElementById('typing-indicator');
+        let isOpen = false;
+        let unreadCount = 0;
+        let lastMessageCount = 0;
+        let originalBodyOverflow = '';
+        let chatInterval = null;
+
+        // Function to disable body scroll
+        function disableBodyScroll() {
+            originalBodyOverflow = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
+            document.body.classList.add('chat-open');
+        }
+
+        // Function to enable body scroll
+        function enableBodyScroll() {
+            document.body.style.overflow = originalBodyOverflow;
+            document.body.classList.remove('chat-open');
+        }
+
+        // Stop bouncing animation
+        function stopBouncing() {
+            toggle.style.animation = 'none';
+        }
+
+        // Start bouncing animation
+        function startBouncing() {
+            if (!isOpen) {
+                toggle.style.animation = 'bounce 1.5s ease infinite';
+            }
+        }
+
+        // Create unread badge
+        let unreadBadge = document.getElementById('chat-badge');
+
+        function updateUnreadBadge() {
+            if (unreadCount > 0 && !isOpen) {
+                unreadBadge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                unreadBadge.style.display = 'flex';
+                startBouncing();
+            } else {
+                unreadBadge.style.display = 'none';
+            }
+        }
+
+        function updateQuickReplies() {
+            if (lastMessageCount === 0 && quickRepliesDiv) {
+                quickRepliesDiv.style.display = 'block';
+                setTimeout(() => {
+                    quickRepliesDiv.style.display = 'none';
+                }, 10000);
+            }
+        }
+
+        function resetUnreadCount() {
+            unreadCount = 0;
+            updateUnreadBadge();
+            // Send acknowledgment to server that messages were read
+            fetch('/chat/api/mark-read', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            }).catch(() => { });
+        }
+
+        // Single toggle event listener
+        toggle.addEventListener('click', function () {
+            if (!isOpen) {
+                // Open chat
+                isOpen = true;
+                chatWindow.style.display = 'flex';
+                disableBodyScroll();
+                stopBouncing();
+                resetUnreadCount();
+                loadMessages();
+                if (chatInterval) clearInterval(chatInterval);
+                chatInterval = setInterval(loadMessages, 3000);
+                setTimeout(() => {
+                    input.focus();
+                }, 300);
+            } else {
+                // Close chat
+                isOpen = false;
+                chatWindow.style.display = 'none';
+                enableBodyScroll();
+                if (chatInterval) clearInterval(chatInterval);
+                chatInterval = null;
+            }
+        });
+
+        // Close button handler
+        closeBtn.addEventListener('click', function () {
+            isOpen = false;
+            chatWindow.style.display = 'none';
+            enableBodyScroll();
+            if (chatInterval) clearInterval(chatInterval);
+            chatInterval = null;
+        });
+
+        function loadMessages() {
+            fetch('/chat/api/messages')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.messages && data.messages.length > 0) {
+                        const newMessageCount = data.messages.length;
+                        // Only increment unread count if chat is closed
+                        if (!isOpen && newMessageCount > lastMessageCount) {
+                            unreadCount += (newMessageCount - lastMessageCount);
+                            updateUnreadBadge();
+                        }
+                        lastMessageCount = newMessageCount;
+
+                        messagesDiv.innerHTML = '';
+                        data.messages.forEach(msg => {
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = `message-bubble message-${msg.is_admin ? 'admin' : 'user'}`;
+                            // Handle time display properly
+                            let displayTime = '';
+                            if (msg.time) {
+                                displayTime = msg.time;
+                            } else if (msg.timestamp) {
+                                displayTime = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            } else {
+                                displayTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            }
+                            messageDiv.innerHTML = `
+                                <div class="bubble">
+                                    <div>${escapeHtml(msg.text)}</div>
+                                    <div class="time">
+                                        <i class="fas fa-${msg.is_admin ? 'headset' : 'user'} fa-xs"></i>
+                                        ${msg.sender} • ${displayTime}
+                                    </div>
+                                </div>
+                            `;
+                            messagesDiv.appendChild(messageDiv);
+                        });
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                        updateQuickReplies();
+                    } else {
+                        messagesDiv.innerHTML = `
+                            <div class="text-center" style="padding: 40px 20px;">
+                                <i class="fas fa-comments fa-3x mb-2" style="color: #E67E22; opacity: 0.3;"></i>
+                                <p class="text-muted">No messages yet. Start a conversation!</p>
+                                <small class="text-muted">Our support team is ready to help you.</small>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading messages:', error);
+                });
+        }
+
+        function sendMessage() {
+            const message = input.value.trim();
+            if (!message) return;
+
+            sendBtn.disabled = true;
+            sendBtn.style.opacity = '0.6';
+
+            fetch('/chat/api/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+                .then(response => response.json())
+                .then(() => {
+                    input.value = '';
+                    loadMessages();
+                    sendBtn.disabled = false;
+                    sendBtn.style.opacity = '1';
+                })
+                .catch(() => {
+                    sendBtn.disabled = false;
+                    sendBtn.style.opacity = '1';
+                });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        input.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Quick replies
+        document.querySelectorAll('.quick-reply').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const message = this.dataset.message;
+                input.value = message;
+                sendMessage();
+            });
+        });
+
+        // Initial load
+        loadMessages();
+
+        // Re-enable scroll if component unmounts (just in case)
+        window.addEventListener('beforeunload', function () {
+            if (isOpen) {
+                enableBodyScroll();
+            }
+        });
+    });
+</script>

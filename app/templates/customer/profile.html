@@ -1,0 +1,657 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    My <span style="color: var(--primary);">Profile</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}" style="color: var(--primary);">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('customer.dashboard') }}" style="color: var(--primary);">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Profile</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-user-circle me-1"></i> {{ user.username }}
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row g-4">
+        <!-- Profile Sidebar -->
+        <div class="col-lg-4">
+            <div class="profile-sidebar">
+                <div class="profile-avatar text-center">
+                    <div class="avatar-circle">
+                        <i class="fas fa-user-circle fa-5x" style="color: var(--primary);"></i>
+                    </div>
+                    <h4 class="mt-3 mb-1">{{ user.username }}</h4>
+                    <p class="text-muted small">Member since {{ user.created_at.strftime('%B %Y') }}</p>
+                    
+                    {% if user.is_admin %}
+                    <span class="badge bg-danger px-3 py-2 rounded-pill">
+                        <i class="fas fa-crown me-1"></i> Administrator
+                    </span>
+                    {% else %}
+                    <span class="badge bg-success px-3 py-2 rounded-pill">
+                        <i class="fas fa-user-check me-1"></i> Verified Customer
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <div class="profile-menu mt-4">
+                    <div class="menu-header">
+                        <i class="fas fa-bars me-2" style="color: var(--primary);"></i>
+                        <span class="fw-semibold">Navigation Menu</span>
+                    </div>
+                    <div class="menu-items">
+                        <a href="{{ url_for('customer.profile') }}" class="menu-item active">
+                            <i class="fas fa-user-circle"></i>
+                            <span>My Profile</span>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('customer.edit_profile') }}" class="menu-item">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit Profile</span>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('customer.orders') }}" class="menu-item">
+                            <i class="fas fa-truck"></i>
+                            <span>My Orders</span>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('wishlist.view_wishlist') }}" class="menu-item">
+                            <i class="fas fa-heart text-danger"></i>
+                            <span>My Wishlist</span>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('cart.view_cart') }}" class="menu-item">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>My Cart</span>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('customer.dashboard') }}" class="menu-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="profile-actions mt-4">
+                    <a href="{{ url_for('customer.edit_profile') }}" class="action-btn edit-btn">
+                        <i class="fas fa-edit me-2"></i> Edit Profile
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="action-btn logout-btn mt-2">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Content -->
+        <div class="col-lg-8">
+            <!-- Personal Information Card -->
+            <div class="profile-card">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-id-card me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Personal Information</h5>
+                    </div>
+                    <a href="{{ url_for('customer.edit_profile') }}" class="btn-edit-sm">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </a>
+                </div>
+                <div class="card-body-custom">
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-user me-2" style="color: var(--primary);"></i> Username
+                        </div>
+                        <div class="info-value">{{ user.username }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-envelope me-2" style="color: var(--primary);"></i> Email Address
+                        </div>
+                        <div class="info-value">
+                            {{ user.email }}
+                            {% if user.is_verified %}
+                            <span class="verified-badge">
+                                <i class="fas fa-check-circle"></i> Verified
+                            </span>
+                            {% else %}
+                            <span class="unverified-badge">
+                                <i class="fas fa-exclamation-circle"></i> Unverified
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-calendar-alt me-2" style="color: var(--primary);"></i> Member Since
+                        </div>
+                        <div class="info-value">{{ user.created_at.strftime('%B %d, %Y at %H:%M') }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-user-tag me-2" style="color: var(--primary);"></i> Account Type
+                        </div>
+                        <div class="info-value">
+                            {% if user.is_admin %}
+                            <span class="badge-admin">
+                                <i class="fas fa-crown me-1"></i> Administrator
+                            </span>
+                            {% else %}
+                            <span class="badge-customer">
+                                <i class="fas fa-user me-1"></i> Customer
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if user.phone %}
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-phone me-2" style="color: var(--primary);"></i> Phone Number
+                        </div>
+                        <div class="info-value">{{ user.phone }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.address %}
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-location-dot me-2" style="color: var(--primary);"></i> Address
+                        </div>
+                        <div class="info-value">{{ user.address }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Account Statistics Card -->
+            <div class="profile-card mt-4">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-chart-line me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Account Statistics</h5>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-number">{{ user.orders|length if user.orders else 0 }}</h3>
+                                <p class="stat-label">Total Orders</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-number">${{ user.orders|sum(attribute='total_amount')|round(2) if user.orders else '0' }}</h3>
+                                <p class="stat-label">Total Spent</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-number">{{ user.orders|selectattr('status', 'equalto', 'Delivered')|list|length if user.orders else 0 }}</h3>
+                                <p class="stat-label">Delivered</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-number">{{ user.orders|selectattr('status', 'equalto', 'Processing')|list|length + user.orders|selectattr('status', 'equalto', 'Pending')|list|length if user.orders else 0 }}</h3>
+                                <p class="stat-label">In Progress</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity Card -->
+            {% if user.orders %}
+            <div class="profile-card mt-4">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-history me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Recent Activity</h5>
+                    </div>
+                    <a href="{{ url_for('customer.orders') }}" class="view-all-link">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body-custom">
+                    <div class="activity-timeline">
+                        {% for order in user.orders[:3] %}
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">Order #{{ order.id }}</div>
+                                <div class="activity-date">{{ order.order_date.strftime('%b %d, %Y at %H:%M') }}</div>
+                            </div>
+                            <div class="activity-status">
+                                <span class="status-badge-{{ order.status.lower() }}">
+                                    {{ order.status }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Profile Sidebar */
+    .profile-sidebar {
+        background: white;
+        border-radius: 24px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+        position: sticky;
+        top: 100px;
+    }
+    
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        background: #FEF3E4;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border: 3px solid var(--primary);
+    }
+    
+    /* Profile Menu */
+    .menu-header {
+        padding: 0.75rem;
+        background: #FEF3E4;
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .menu-items {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.75rem;
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--slate);
+        transition: all 0.2s;
+        background: #FEFEFE;
+        border: 1px solid rgba(230,126,34,0.08);
+    }
+    
+    .menu-item:hover {
+        background: #FEF3E4;
+        transform: translateX(5px);
+        border-color: rgba(230,126,34,0.2);
+    }
+    
+    .menu-item.active {
+        background: var(--btn-grad);
+        color: white;
+        border: none;
+    }
+    
+    .menu-item.active i {
+        color: white;
+    }
+    
+    .menu-item i:first-child {
+        width: 24px;
+        font-size: 1rem;
+    }
+    
+    /* Profile Actions */
+    .profile-actions {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .action-btn {
+        display: block;
+        padding: 0.75rem;
+        border-radius: 12px;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .edit-btn {
+        background: var(--btn-grad);
+        color: white;
+    }
+    
+    .edit-btn:hover {
+        background: var(--btn-hover);
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .logout-btn {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    .logout-btn:hover {
+        background: #C62828;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    /* Profile Card */
+    .profile-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .card-header-custom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        background: #FFFCF8;
+    }
+    
+    .card-body-custom {
+        padding: 1.5rem;
+    }
+    
+    /* Info Rows */
+    .info-row {
+        display: flex;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(230,126,34,0.08);
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        width: 150px;
+        font-weight: 600;
+        color: var(--slate-light);
+    }
+    
+    .info-value {
+        flex: 1;
+        color: var(--slate);
+    }
+    
+    /* Badges */
+    .verified-badge {
+        display: inline-block;
+        background: #E8F5E9;
+        color: #2E7D32;
+        padding: 3px 10px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        margin-left: 0.75rem;
+    }
+    
+    .unverified-badge {
+        display: inline-block;
+        background: #FFF3E0;
+        color: #E65100;
+        padding: 3px 10px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        margin-left: 0.75rem;
+    }
+    
+    .badge-admin, .badge-customer {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+    }
+    
+    .badge-admin {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    .badge-customer {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .btn-edit-sm {
+        background: none;
+        border: none;
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.85rem;
+        padding: 5px 12px;
+        border-radius: 50px;
+        transition: 0.2s;
+    }
+    
+    .btn-edit-sm:hover {
+        background: #FEF3E4;
+    }
+    
+    /* Statistics Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #FEFEFE;
+        border-radius: 16px;
+        border: 1px solid rgba(230,126,34,0.08);
+        transition: 0.2s;
+    }
+    
+    .stat-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(230,126,34,0.1);
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: #FEF3E4;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 0;
+        color: var(--slate);
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--slate-light);
+        margin-bottom: 0;
+    }
+    
+    /* Activity Timeline */
+    .activity-timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: #FEFEFE;
+        border-radius: 12px;
+        transition: 0.2s;
+    }
+    
+    .activity-item:hover {
+        background: #FEF3E4;
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        background: #FEF3E4;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+    }
+    
+    .activity-details {
+        flex: 1;
+    }
+    
+    .activity-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .activity-date {
+        font-size: 0.7rem;
+        color: var(--slate-light);
+    }
+    
+    .view-all-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+    
+    /* Status Badges for Activity */
+    .status-badge-delivered {
+        background: #E8F5E9;
+        color: #2E7D32;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .status-badge-processing, .status-badge-pending {
+        background: #FFF3E0;
+        color: #E65100;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .status-badge-shipped {
+        background: #E3F2FD;
+        color: #1565C0;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .profile-sidebar {
+            position: static;
+            margin-bottom: 1rem;
+        }
+        
+        .info-row {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .info-label {
+            width: 100%;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stat-item {
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .activity-item {
+            flex-wrap: wrap;
+        }
+        
+        .activity-status {
+            width: 100%;
+            text-align: right;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .profile-sidebar, .profile-card {
+        animation: fadeInUp 0.4s ease forwards;
+    }
+</style>
+{% endblock %}

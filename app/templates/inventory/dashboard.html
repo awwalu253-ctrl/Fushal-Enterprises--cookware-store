@@ -1,0 +1,758 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-chart-line me-2" style="color: var(--primary);"></i>
+                    Inventory <span style="color: var(--primary);">Dashboard</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" style="color: var(--primary);">Admin</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Inventory Dashboard</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <button class="btn btn-primary-custom" onclick="exportReport()">
+                    <i class="fas fa-download me-2"></i> Export CSV
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container-fluid px-4 my-4">
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card-primary">
+                                <div class="stat-icon">
+                                    <i class="fas fa-boxes"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 class="stat-number">{{ total_products }}</h3>
+                                    <p class="stat-label">Total Products</p>
+                                </div>
+                            </div>
+                        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card-success">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 class="stat-number">${{ "%.2f"|format(total_value) }}</h3>
+                    <p class="stat-label">Inventory Value</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 class="stat-number">{{ low_stock_products|length }}</h3>
+                    <p class="stat-label">Low Stock Items</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card-danger">
+                <div class="stat-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 class="stat-number">{{ out_of_stock_products|length }}</h3>
+                    <p class="stat-label">Out of Stock</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="dashboard-card">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-chart-pie me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Stock Status Distribution</h5>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <canvas id="stockChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="dashboard-card">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-chart-bar me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Top Categories</h5>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <canvas id="categoryChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Sales Section -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="dashboard-card">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-chart-line me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Recent Sales Performance</h5>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="sales-stats">
+                                <div class="sales-amount">
+                                    <span class="sales-label">Total Sales (Last 7 Days)</span>
+                                    <h2 class="sales-value">${{ "%.2f"|format(total_sales) }}</h2>
+                                </div>
+                                <div class="sales-orders">
+                                    <span class="sales-label">Orders Processed</span>
+                                    <h4 class="orders-value">{{ recent_sales|length }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="trend-indicator">
+                                <i class="fas fa-arrow-up trend-up"></i>
+                                <div>
+                                    <small class="text-muted">vs last week</small>
+                                    <div class="fw-bold text-success">+12.5%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Management Table -->
+    <div class="dashboard-card">
+        <div class="card-header-custom">
+            <div>
+                <i class="fas fa-clipboard-list me-2" style="color: var(--primary);"></i>
+                <h5 class="mb-0 fw-bold">Inventory Management</h5>
+            </div>
+            <div class="table-actions">
+                <input type="text" id="searchInventory" class="form-control form-control-sm rounded-pill" 
+                       placeholder="Search products..." style="width: 200px;">
+            </div>
+        </div>
+        <div class="card-body-custom p-0">
+            <form method="POST" action="{{ url_for('inventory.bulk_update') }}" id="inventoryForm">
+                <div class="table-responsive">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Current Stock</th>
+                                <th>Low Stock Alert</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            {% for product in products %}
+                            <tr class="{% if product.is_low_stock() %}low-stock-row{% endif %} {% if product.is_out_of_stock() %}out-of-stock-row{% endif %}">
+                                <td data-label="SKU">
+                                    <span class="sku-code">{{ product.sku or 'N/A' }}</span>
+                                </td>
+                                <td data-label="Product Name">
+                                    <div class="product-name-cell">
+                                        <strong>{{ product.name }}</strong>
+                                    </div>
+                                </td>
+                                <td data-label="Category">
+                                    <span class="category-badge">{{ product.category or 'Uncategorized' }}</span>
+                                </td>
+                                <td data-label="Price" class="price-cell">${{ "%.2f"|format(product.price) }}</td>
+                                <td data-label="Current Stock">
+                                    <div class="stock-input-wrapper">
+                                        <button type="button" class="stock-decrement" data-id="{{ product.id }}">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="number" name="stock_{{ product.id }}" value="{{ product.stock }}" 
+                                               class="stock-input" data-id="{{ product.id }}" step="1">
+                                        <button type="button" class="stock-increment" data-id="{{ product.id }}">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td data-label="Low Stock Alert">
+                                    <div class="threshold-wrapper">
+                                        <input type="number" name="threshold_{{ product.id }}" 
+                                               value="{{ product.low_stock_threshold }}" 
+                                               class="threshold-input" data-id="{{ product.id }}" step="1">
+                                        <button type="button" class="set-threshold" data-id="{{ product.id }}">
+                                            <i class="fas fa-save"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td data-label="Status">
+                                    {% if product.is_out_of_stock() %}
+                                        <span class="status-badge out-of-stock">
+                                            <i class="fas fa-times-circle me-1"></i> Out of Stock
+                                        </span>
+                                    {% elif product.is_low_stock() %}
+                                        <span class="status-badge low-stock">
+                                            <i class="fas fa-exclamation-triangle me-1"></i> Low Stock
+                                        </span>
+                                    {% else %}
+                                        <span class="status-badge in-stock">
+                                            <i class="fas fa-check-circle me-1"></i> In Stock
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Actions">
+                                    <div class="action-buttons">
+                                        <a href="{{ url_for('admin.edit_product', id=product.id) }}" class="btn-icon edit" title="Edit Product">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn-icon view" title="Quick View" data-id="{{ product.id }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-actions p-3 border-top">
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="fas fa-save me-2"></i> Update All Stocks
+                    </button>
+                    <button type="button" class="btn btn-outline-custom ms-2" onclick="resetForm()">
+                        <i class="fas fa-undo-alt me-2"></i> Reset
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Statistics Cards */
+    .stat-card-primary, .stat-card-success, .stat-card-warning, .stat-card-danger {
+        background: white;
+        border-radius: 20px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+        transition: all 0.3s;
+    }
+    
+    .stat-card-primary:hover, .stat-card-success:hover, 
+    .stat-card-warning:hover, .stat-card-danger:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(230,126,34,0.1);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+    }
+    
+    .stat-card-primary .stat-icon {
+        background: rgba(230,126,34,0.15);
+        color: var(--primary);
+    }
+    
+    .stat-card-success .stat-icon {
+        background: rgba(40,167,69,0.15);
+        color: #28a745;
+    }
+    
+    .stat-card-warning .stat-icon {
+        background: rgba(255,193,7,0.15);
+        color: #ffc107;
+    }
+    
+    .stat-card-danger .stat-icon {
+        background: rgba(220,53,69,0.15);
+        color: #dc3545;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 0;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--slate-light);
+        margin-bottom: 0;
+    }
+    
+    /* Dashboard Card */
+    .dashboard-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .card-header-custom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        background: #FFFCF8;
+    }
+    
+    .card-body-custom {
+        padding: 1.5rem;
+    }
+    
+    /* Sales Stats */
+    .sales-stats {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .sales-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary);
+        margin-bottom: 0;
+    }
+    
+    .orders-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--secondary);
+        margin-bottom: 0;
+    }
+    
+    .sales-label {
+        font-size: 0.8rem;
+        color: var(--slate-light);
+        display: block;
+    }
+    
+    .trend-indicator {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        justify-content: flex-end;
+    }
+    
+    .trend-up {
+        font-size: 2rem;
+        color: #28a745;
+    }
+    
+    /* Inventory Table */
+    .inventory-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .inventory-table th {
+        padding: 1rem;
+        background: #FFFCF8;
+        font-weight: 600;
+        color: var(--slate);
+        border-bottom: 2px solid rgba(230,126,34,0.1);
+        font-size: 0.85rem;
+    }
+    
+    .inventory-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(230,126,34,0.08);
+        vertical-align: middle;
+    }
+    
+    .inventory-table tr:hover {
+        background: rgba(230,126,34,0.02);
+    }
+    
+    .low-stock-row {
+        background: rgba(255,193,7,0.05);
+    }
+    
+    .out-of-stock-row {
+        background: rgba(220,53,69,0.05);
+    }
+    
+    .sku-code {
+        font-family: monospace;
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.85rem;
+    }
+    
+    .category-badge {
+        background: #FEF3E4;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        color: var(--primary-dark);
+    }
+    
+    .price-cell {
+        font-weight: 700;
+        color: var(--primary-dark);
+    }
+    
+    /* Stock Input Controls */
+    .stock-input-wrapper {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: #FEF3E4;
+        border-radius: 50px;
+        padding: 0.2rem;
+    }
+    
+    .stock-decrement, .stock-increment {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: none;
+        background: white;
+        color: var(--primary);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .stock-decrement:hover, .stock-increment:hover {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .stock-input {
+        width: 60px;
+        text-align: center;
+        border: none;
+        background: transparent;
+        font-weight: 600;
+        padding: 0.3rem 0;
+    }
+    
+    .stock-input:focus {
+        outline: none;
+    }
+    
+    /* Threshold Input */
+    .threshold-wrapper {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    
+    .threshold-input {
+        width: 60px;
+        padding: 0.3rem 0.5rem;
+        border: 1px solid rgba(230,126,34,0.2);
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .set-threshold {
+        background: none;
+        border: none;
+        color: var(--primary);
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    
+    .set-threshold:hover {
+        color: var(--primary-dark);
+        transform: scale(1.1);
+    }
+    
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.in-stock {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .status-badge.low-stock {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+    
+    .status-badge.out-of-stock {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-icon.edit {
+        background: #FEF3E4;
+        color: var(--primary);
+    }
+    
+    .btn-icon.edit:hover {
+        background: var(--primary);
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .btn-icon.view {
+        background: #E3F2FD;
+        color: #1565C0;
+    }
+    
+    .btn-icon.view:hover {
+        background: #1565C0;
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        background: #FFFCF8;
+    }
+    
+    /* Responsive Table */
+    @media (max-width: 768px) {
+        .inventory-table thead {
+            display: none;
+        }
+        
+        .inventory-table tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(230,126,34,0.1);
+            border-radius: 16px;
+            padding: 1rem;
+        }
+        
+        .inventory-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed rgba(230,126,34,0.08);
+        }
+        
+        .inventory-table td:last-child {
+            border-bottom: none;
+        }
+        
+        .inventory-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--slate-light);
+        }
+        
+        .stock-input-wrapper {
+            justify-content: flex-end;
+        }
+        
+        .action-buttons {
+            justify-content: flex-end;
+        }
+        
+        .sales-stats {
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .trend-indicator {
+            justify-content: center;
+            margin-top: 1rem;
+        }
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Stock Status Chart
+    const stockCtx = document.getElementById('stockChart').getContext('2d');
+    new Chart(stockCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['In Stock', 'Low Stock', 'Out of Stock'],
+            datasets: [{
+                data: [{{ products|selectattr('is_low_stock', 'false')|selectattr('is_out_of_stock', 'false')|list|length }}, 
+                       {{ low_stock_products|length }}, 
+                       {{ out_of_stock_products|length }}],
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Category Chart
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(categoryCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for cat, count in categories.items() %}'{{ cat }}',{% endfor %}],
+            datasets: [{
+                label: 'Number of Products',
+                data: [{% for cat, count in categories.items() %}{{ count }},{% endfor %}],
+                backgroundColor: 'rgba(230, 126, 34, 0.7)',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    
+    // Export Report
+    function exportReport() {
+        window.location.href = "{{ url_for('inventory.export_report') }}";
+    }
+    
+    // Stock Increment/Decrement
+    document.querySelectorAll('.stock-increment').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const input = document.querySelector(`input[name="stock_${id}"]`);
+            if (input) {
+                input.value = parseInt(input.value) + 1;
+            }
+        });
+    });
+    
+    document.querySelectorAll('.stock-decrement').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const input = document.querySelector(`input[name="stock_${id}"]`);
+            if (input && parseInt(input.value) > 0) {
+                input.value = parseInt(input.value) - 1;
+            }
+        });
+    });
+    
+    // Set Threshold via AJAX
+    document.querySelectorAll('.set-threshold').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            const input = document.querySelector(`input[name="threshold_${id}"]`);
+            const threshold = input.value;
+            
+            const response = await fetch(`/inventory/set-threshold/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ threshold: threshold })
+            });
+            
+            if (response.ok) {
+                showNotification('Threshold updated successfully!', 'success');
+            }
+        });
+    });
+    
+    // Search Inventory
+    const searchInput = document.getElementById('searchInventory');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#inventoryTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Reset Form
+    function resetForm() {
+        if (confirm('Reset all stock values to original?')) {
+            location.reload();
+        }
+    }
+    
+    // Notification function
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+        notification.style.zIndex = '9999';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+</script>
+{% endblock %}

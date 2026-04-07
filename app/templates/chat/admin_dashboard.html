@@ -1,0 +1,584 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-comments me-2" style="color: var(--primary);"></i>
+                    Live Chat <span style="color: var(--primary);">Support</span>
+                </h1>
+                <p class="text-muted mt-2 mb-0">Manage and respond to customer chat sessions in real-time</p>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="status-badge online">
+                    <i class="fas fa-circle"></i> Online
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-4">
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card stat-card-sessions">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <p class="stat-label">Total Chat Sessions</p>
+                    <h3 class="stat-number">{{ total_sessions }}</h3>
+                    <div class="stat-trend">
+                        <span class="trend-up"><i class="fas fa-arrow-up"></i> All Time</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card stat-card-active">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-circle"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <p class="stat-label">Active Chats</p>
+                    <h3 class="stat-number">{{ active_count }}</h3>
+                    <div class="stat-trend">
+                        <span class="trend-up text-success"><i class="fas fa-circle"></i> Live Now</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card stat-card-avg">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <p class="stat-label">Avg Response Time</p>
+                    <h3 class="stat-number">{{ avg_response_time|default('2.5') }} min</h3>
+                    <div class="stat-trend">
+                        <span class="trend-up"><i class="fas fa-arrow-down"></i> -15% vs last week</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Chat Sessions Card -->
+    <div class="chat-card">
+        <div class="chat-card-header">
+            <div>
+                <i class="fas fa-comments me-2" style="color: var(--primary);"></i>
+                <h5 class="mb-0 fw-bold">Active Chat Sessions</h5>
+            </div>
+            <div class="refresh-indicator">
+                <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                <span class="small text-muted">Auto-refreshes every 30s</span>
+            </div>
+        </div>
+        <div class="chat-card-body">
+            {% if sessions %}
+                <div class="sessions-list">
+                    {% for session in sessions %}
+                    <a href="{{ url_for('chat.admin_session', session_id=session.id) }}" class="session-item">
+                        <div class="session-avatar">
+                            <div class="avatar-initial">
+                                {{ (session.user_name or 'G')[0]|upper }}
+                            </div>
+                            <span class="online-indicator"></span>
+                        </div>
+                        <div class="session-info">
+                            <div class="session-name">{{ session.user_name or 'Guest User' }}</div>
+                            <div class="session-email">
+                                <i class="fas fa-envelope me-1"></i> {{ session.user_email or 'No email provided' }}
+                            </div>
+                            <div class="session-last-active">
+                                <i class="fas fa-clock me-1"></i> Last active: {{ session.updated_at.strftime('%H:%M') }}
+                            </div>
+                        </div>
+                        <div class="session-status">
+                            <span class="chat-badge active">
+                                <i class="fas fa-circle"></i> Active
+                            </span>
+                            <div class="message-count" title="Unread messages">
+                                <i class="fas fa-comment-dots"></i> {{ session.unread_count|default(0) }}
+                            </div>
+                        </div>
+                        <div class="session-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state text-center py-5">
+                    <div class="empty-icon">
+                        <i class="fas fa-comment-slash fa-4x"></i>
+                    </div>
+                    <h5 class="mt-3 mb-2">No Active Chat Sessions</h5>
+                    <p class="text-muted mb-0">Customers will appear here when they start a chat.</p>
+                    <div class="mt-3">
+                        <span class="badge bg-light text-dark px-3 py-2">
+                            <i class="fas fa-info-circle me-1"></i> Make sure the chat widget is active on your website
+                        </span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Quick Tips Card -->
+    <div class="tips-card mt-4">
+        <div class="tips-header">
+            <i class="fas fa-lightbulb me-2" style="color: var(--secondary);"></i>
+            <span class="fw-semibold">Pro Tips for Better Customer Support</span>
+        </div>
+        <div class="tips-body">
+            <div class="tip-item">
+                <i class="fas fa-bolt"></i>
+                <span>Respond within 2 minutes for best customer satisfaction</span>
+            </div>
+            <div class="tip-item">
+                <i class="fas fa-smile"></i>
+                <span>Use a friendly and professional tone in all conversations</span>
+            </div>
+            <div class="tip-item">
+                <i class="fas fa-save"></i>
+                <span>Save common responses for frequently asked questions</span>
+            </div>
+            <div class="tip-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Monitor response times to improve support quality</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Statistics Cards */
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+        transition: all 0.3s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(230,126,34,0.12);
+    }
+    
+    .stat-icon-wrapper {
+        background: #FEF3E4;
+        border-radius: 16px;
+        padding: 0.75rem;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .stat-card-sessions .stat-icon { color: var(--primary); }
+    .stat-card-active .stat-icon { color: #28a745; }
+    .stat-card-avg .stat-icon { color: var(--secondary); }
+    
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 0;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--slate-light);
+        margin-bottom: 0;
+    }
+    
+    .stat-trend {
+        margin-top: 0.5rem;
+        font-size: 0.7rem;
+    }
+    
+    .trend-up {
+        color: #28a745;
+        font-weight: 600;
+    }
+    
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.online {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .status-badge.online i {
+        font-size: 0.7rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    /* Chat Card */
+    .chat-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .chat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        background: #FFFCF8;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .refresh-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    #refreshIcon {
+        animation: spin 1s linear infinite;
+        animation-play-state: paused;
+    }
+    
+    #refreshIcon.spinning {
+        animation-play-state: running;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .chat-card-body {
+        padding: 0;
+    }
+    
+    /* Sessions List */
+    .sessions-list {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .session-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        text-decoration: none;
+        color: inherit;
+        border-bottom: 1px solid rgba(230,126,34,0.08);
+        transition: all 0.2s;
+    }
+    
+    .session-item:hover {
+        background: rgba(230,126,34,0.03);
+        transform: translateX(5px);
+    }
+    
+    .session-avatar {
+        position: relative;
+        flex-shrink: 0;
+    }
+    
+    .avatar-initial {
+        width: 50px;
+        height: 50px;
+        background: var(--btn-grad);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    
+    .online-indicator {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 12px;
+        height: 12px;
+        background: #28a745;
+        border-radius: 50%;
+        border: 2px solid white;
+    }
+    
+    .session-info {
+        flex: 1;
+    }
+    
+    .session-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--slate);
+    }
+    
+    .session-email {
+        font-size: 0.75rem;
+        color: var(--slate-light);
+        margin-top: 0.2rem;
+    }
+    
+    .session-last-active {
+        font-size: 0.7rem;
+        color: var(--slate-light);
+        margin-top: 0.2rem;
+    }
+    
+    .session-status {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.5rem;
+    }
+    
+    .chat-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.25rem 0.7rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .chat-badge.active {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .chat-badge.active i {
+        font-size: 0.6rem;
+    }
+    
+    .message-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.25rem 0.6rem;
+        background: #FEF3E4;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--primary-dark);
+    }
+    
+    .session-arrow {
+        color: var(--slate-light);
+        transition: all 0.2s;
+    }
+    
+    .session-item:hover .session-arrow {
+        transform: translateX(3px);
+        color: var(--primary);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        padding: 3rem;
+    }
+    
+    .empty-icon {
+        color: var(--slate-light);
+        opacity: 0.5;
+    }
+    
+    /* Tips Card */
+    .tips-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .tips-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(230,126,34,0.1);
+        background: #FFFCF8;
+    }
+    
+    .tips-body {
+        padding: 1rem 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 0.75rem;
+    }
+    
+    .tip-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--slate);
+    }
+    
+    .tip-item i {
+        width: 25px;
+        color: var(--secondary);
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .stat-card {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+        }
+        
+        .session-item {
+            flex-wrap: wrap;
+        }
+        
+        .session-status {
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        
+        .session-arrow {
+            display: none;
+        }
+        
+        .tips-body {
+            grid-template-columns: 1fr;
+        }
+        
+        .chat-card-header {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .stat-card, .chat-card, .tips-card {
+        animation: fadeInUp 0.4s ease forwards;
+    }
+    
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+</style>
+
+<script>
+    // Auto-refresh functionality
+    let refreshInterval;
+    const refreshIcon = document.getElementById('refreshIcon');
+    
+    function startAutoRefresh() {
+        refreshInterval = setInterval(() => {
+            refreshIcon.classList.add('spinning');
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newSessions = doc.querySelector('.sessions-list')?.innerHTML;
+                    const newActiveCount = doc.querySelector('.stat-card-active .stat-number')?.innerText;
+                    const newTotalSessions = doc.querySelector('.stat-card-sessions .stat-number')?.innerText;
+                    
+                    if (newSessions) {
+                        document.querySelector('.sessions-list')?.replaceWith(
+                            Object.assign(document.createElement('div'), { 
+                                className: 'sessions-list',
+                                innerHTML: newSessions 
+                            })
+                        );
+                    }
+                    
+                    if (newActiveCount) {
+                        const activeCard = document.querySelector('.stat-card-active .stat-number');
+                        if (activeCard) activeCard.innerText = newActiveCount;
+                    }
+                    
+                    if (newTotalSessions) {
+                        const totalCard = document.querySelector('.stat-card-sessions .stat-number');
+                        if (totalCard) totalCard.innerText = newTotalSessions;
+                    }
+                    
+                    setTimeout(() => {
+                        refreshIcon.classList.remove('spinning');
+                    }, 500);
+                })
+                .catch(() => {
+                    refreshIcon.classList.remove('spinning');
+                });
+        }, 30000);
+    }
+    
+    startAutoRefresh();
+    
+    // Stop refresh on page unload
+    window.addEventListener('beforeunload', () => {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+    });
+</script>
+{% endblock %}

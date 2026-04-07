@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Reviews for {{ product.name }}</h2>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h1 class="display-1">{{ average_rating|round(1) }}</h1>
+                    <div class="stars">
+                        {% for i in range(5) %}
+                            {% if i < average_rating|int %}
+                                <i class="fas fa-star text-warning"></i>
+                            {% else %}
+                                <i class="far fa-star text-warning"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <p>Based on {{ reviews|length }} reviews</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            {% if current_user.is_authenticated and not current_user.is_admin %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Write a Review</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('main.submit_review', product_id=product.id) }}">
+                        <div class="mb-3">
+                            <label class="form-label">Rating</label>
+                            <select name="rating" class="form-select" required>
+                                <option value="5">5 Stars - Excellent</option>
+                                <option value="4">4 Stars - Very Good</option>
+                                <option value="3">3 Stars - Good</option>
+                                <option value="2">2 Stars - Fair</option>
+                                <option value="1">1 Star - Poor</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Your Review</label>
+                            <textarea name="comment" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            
+            <h4>Customer Reviews</h4>
+            {% for review in reviews if review.is_approved %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="stars mb-2">
+                        {% for i in range(5) %}
+                            {% if i < review.rating %}
+                                <i class="fas fa-star text-warning"></i>
+                            {% else %}
+                                <i class="far fa-star text-warning"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <p>{{ review.comment }}</p>
+                    <small class="text-muted">
+                        - {{ review.user.username }} on {{ review.created_at.strftime('%B %d, %Y') }}
+                    </small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "email/base_email.html" %}
+
+{% block content %}
+<h2 style="color: #333; margin-bottom: 20px;">Order Status Update 🔄</h2>
+
+<p>Dear <strong>{{ username }}</strong>,</p>
+
+<p>Your order <strong>#{{ order_id }}</strong> status has been updated!</p>
+
+<div class="order-details" style="text-align: center;">
+    <h3>Current Status:</h3>
+    <div style="font-size: 24px; margin: 20px 0;">
+        {% if status == 'pending' %}
+            <span class="badge badge-warning">⏳ Pending</span>
+        {% elif status == 'processing' %}
+            <span class="badge badge-info">⚙️ Processing</span>
+        {% elif status == 'shipped' %}
+            <span class="badge badge-info">🚚 Shipped</span>
+        {% elif status == 'delivered' %}
+            <span class="badge badge-success">✅ Delivered</span>
+        {% elif status == 'cancelled' %}
+            <span class="badge badge-danger">❌ Cancelled</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="info-box">
+    <h3 style="margin-top: 0;">📊 Status Details:</h3>
+    <p>{{ status_message }}</p>
+</div>
+
+{% if status == 'shipped' %}
+<div class="info-box">
+    <h3 style="margin-top: 0;">📦 Tracking Information</h3>
+    <p><strong>Tracking Number:</strong> {{ tracking_number }}</p>
+    <p><strong>Carrier:</strong> Express Delivery</p>
+    <div style="text-align: center;">
+        <a href="{{ track_url }}" class="button">Track Package</a>
+    </div>
+</div>
+{% endif %}
+
+{% if status == 'delivered' %}
+<div class="info-box">
+    <h3 style="margin-top: 0;">⭐ Enjoy Your Purchase!</h3>
+    <p>We'd love to hear your feedback! Leave a review for the products you received.</p>
+    <div style="text-align: center;">
+        <a href="{{ review_url }}" class="button">Write a Review</a>
+    </div>
+</div>
+{% endif %}
+
+<div style="text-align: center; margin-top: 20px;">
+    <a href="{{ track_url }}" class="button">View Full Order Details</a>
+</div>
+
+<hr>
+
+<p>Need assistance? Contact our support team at <strong>support@awwalinvestment.com</strong></p>
+
+<p>Best regards,<br>
+<strong>The Awwal Investment Team</strong></p>
+{% endblock %}

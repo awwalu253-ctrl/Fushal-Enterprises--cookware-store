@@ -1,0 +1,736 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    Shopping <span style="color: var(--primary);">Cart</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}" style="color: var(--primary);">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Cart</li>
+                    </ol>
+                </nav>
+            </div>
+            {% if items %}
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-shopping-bag me-1"></i> {{ items|length }} Items
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    {% if items %}
+    <div class="row g-4">
+        <!-- Cart Items Section -->
+        <div class="col-lg-8">
+            <div class="cart-container">
+                <div class="cart-header d-none d-md-flex">
+                    <div class="col-product">Product</div>
+                    <div class="col-price">Price</div>
+                    <div class="col-quantity">Quantity</div>
+                    <div class="col-subtotal">Subtotal</div>
+                    <div class="col-action"></div>
+                </div>
+                
+                {% for item in items %}
+                <div class="cart-item" data-product-id="{{ item.product.id }}">
+                    <div class="cart-item-product">
+                        <div class="cart-item-image">
+                            {% if item.product.image_url %}
+                            <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                            <div class="no-image">
+                                <i class="fas fa-image fa-2x text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="cart-item-details">
+                            <h5 class="cart-item-title">{{ item.product.name }}</h5>
+                            <div class="cart-item-meta">
+                                <span class="badge bg-light text-dark" style="background: #FEF3E4 !important;">
+                                    {{ item.product.category.name if item.product.category else 'General' }}
+                                </span>
+                                {% if item.product.stock < 10 %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-exclamation-triangle"></i> Low Stock
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="cart-item-price">
+                        <span class="price-label d-md-none">Price:</span>
+                        <span class="price-value">${{ "%.2f"|format(item.product.price) }}</span>
+                    </div>
+                    
+                    <div class="cart-item-quantity">
+                        <span class="price-label d-md-none">Quantity:</span>
+                        <div class="quantity-control">
+                            <button class="quantity-btn minus" data-product-id="{{ item.product.id }}">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" id="quantity-{{ item.product.id }}" 
+                                   value="{{ item.quantity }}" 
+                                   min="1" 
+                                   max="{{ item.product.stock }}"
+                                   class="quantity-input"
+                                   data-product-id="{{ item.product.id }}"
+                                   data-original-quantity="{{ item.quantity }}">
+                            <button class="quantity-btn plus" data-product-id="{{ item.product.id }}">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="stock-warning" id="warning-{{ item.product.id }}" style="display: none;">
+                            <small class="text-danger">Max {{ item.product.stock }} available</small>
+                        </div>
+                    </div>
+                    
+                    <div class="cart-item-subtotal">
+                        <span class="price-label d-md-none">Subtotal:</span>
+                        <span class="subtotal-value" id="subtotal-{{ item.product.id }}">
+                            ${{ "%.2f"|format(item.subtotal) }}
+                        </span>
+                    </div>
+                    
+                    <div class="cart-item-action">
+                        <button class="remove-item" data-product-id="{{ item.product.id }}" title="Remove item">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <!-- Continue Shopping Link -->
+                <div class="cart-footer">
+                    <a href="{{ url_for('main.all_products') }}" class="continue-shopping">
+                        <i class="fas fa-arrow-left me-2"></i> Continue Shopping
+                    </a>
+                    <button class="clear-cart-btn" data-bs-toggle="modal" data-bs-target="#clearCartModal">
+                        <i class="fas fa-trash-alt me-2"></i> Clear Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Summary Section -->
+        <div class="col-lg-4">
+            <div class="order-summary">
+                <h4 class="order-summary-title">Order Summary</h4>
+                
+                <div class="summary-details">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="subtotal-amount">${{ "%.2f"|format(total) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span class="text-success">Free</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tax (10%)</span>
+                        <span id="tax-amount">${{ "%.2f"|format(total * 0.1) }}</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span id="total-amount">${{ "%.2f"|format(total * 1.1) }}</span>
+                    </div>
+                </div>
+                
+                <!-- Promo Code -->
+                <div class="promo-code">
+                    <div class="input-group">
+                        <input type="text" id="promoCode" class="form-control" placeholder="Promo Code">
+                        <button class="btn btn-outline-custom" id="applyPromo">Apply</button>
+                    </div>
+                    <div id="promoMessage" class="small mt-2" style="display: none;"></div>
+                </div>
+                
+                <!-- Checkout Buttons -->
+                <div class="checkout-actions">
+                    <a href="{{ url_for('cart.checkout') }}" class="btn btn-primary-custom w-100">
+                        <i class="fas fa-lock me-2"></i> Proceed to Checkout
+                    </a>
+                    <a href="{{ url_for('main.all_products') }}" class="btn btn-outline-custom w-100 mt-2">
+                        <i class="fas fa-store me-2"></i> Continue Shopping
+                    </a>
+                </div>
+                
+                <!-- Payment Methods -->
+                <div class="payment-methods mt-4 text-center">
+                    <p class="small text-muted mb-2">Secure Payment Methods</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <i class="fab fa-cc-visa fa-2x text-muted"></i>
+                        <i class="fab fa-cc-mastercard fa-2x text-muted"></i>
+                        <i class="fab fa-cc-paypal fa-2x text-muted"></i>
+                        <i class="fab fa-cc-amex fa-2x text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recommended Products -->
+    <div class="recommended-section mt-5 pt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <span class="badge px-3 py-2 rounded-pill mb-2" style="background: #FCE4CD; color: #C45100;">
+                    <i class="fas fa-star"></i> You Might Also Like
+                </span>
+                <h3 class="mb-0" style="font-family: 'Playfair Display', serif;">Complete Your <span style="color: var(--primary);">Kitchen</span></h3>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="recommended-card text-center p-3 rounded-4">
+                    <i class="fas fa-kitchen-set fa-3x mb-2" style="color: var(--primary);"></i>
+                    <h6 class="fw-bold">Kitchen Tool Set</h6>
+                    <p class="small text-muted">$29.99</p>
+                    <a href="{{ url_for('main.all_products') }}" class="btn btn-outline-custom btn-sm">View</a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="recommended-card text-center p-3 rounded-4">
+                    <i class="fas fa-mug-hot fa-3x mb-2" style="color: var(--secondary);"></i>
+                    <h6 class="fw-bold">Ceramic Mug Set</h6>
+                    <p class="small text-muted">$24.99</p>
+                    <a href="{{ url_for('main.all_products') }}" class="btn btn-outline-custom btn-sm">View</a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="recommended-card text-center p-3 rounded-4">
+                    <i class="fas fa-utensil-spoon fa-3x mb-2" style="color: var(--accent);"></i>
+                    <h6 class="fw-bold">Spatula Set</h6>
+                    <p class="small text-muted">$14.99</p>
+                    <a href="{{ url_for('main.all_products') }}" class="btn btn-outline-custom btn-sm">View</a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="recommended-card text-center p-3 rounded-4">
+                    <i class="fas fa-knife-kitchen fa-3x mb-2" style="color: var(--primary);"></i>
+                    <h6 class="fw-bold">Chef Knife</h6>
+                    <p class="small text-muted">$49.99</p>
+                    <a href="{{ url_for('main.all_products') }}" class="btn btn-outline-custom btn-sm">View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Empty Cart State -->
+    <div class="empty-state text-center py-5">
+        <div class="empty-state-icon mb-4">
+            <i class="fas fa-shopping-cart fa-5x" style="color: var(--primary); opacity: 0.5;"></i>
+        </div>
+        <h3 class="mb-3">Your Cart is Empty</h3>
+        <p class="text-muted mb-4">Looks like you haven't added any items to your cart yet.</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ url_for('main.all_products') }}" class="btn btn-primary-custom">
+                <i class="fas fa-store me-2"></i> Start Shopping
+            </a>
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-custom">
+                <i class="fas fa-home me-2"></i> Back to Home
+            </a>
+        </div>
+        
+        <!-- Suggestions -->
+        <div class="mt-5 pt-3">
+            <h6 class="text-muted">Popular Categories</h6>
+            <div class="d-flex gap-2 justify-content-center flex-wrap mt-3">
+                <a href="{{ url_for('main.all_products', category='Cookware') }}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">Cookware</a>
+                <a href="{{ url_for('main.all_products', category='Cutlery') }}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">Cutlery</a>
+                <a href="{{ url_for('main.all_products', category='Bakeware') }}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">Bakeware</a>
+                <a href="{{ url_for('main.all_products', category='Serveware') }}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">Serveware</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Clear Cart Confirmation Modal -->
+<div class="modal fade" id="clearCartModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Clear Cart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: var(--primary);"></i>
+                <p class="mb-0">Are you sure you want to clear your entire cart?</p>
+                <small class="text-muted">This action cannot be undone.</small>
+            </div>
+            <div class="modal-footer border-0 justify-content-center gap-3">
+                <button type="button" class="btn btn-outline-custom px-4" data-bs-dismiss="modal">Cancel</button>
+                <a href="{{ url_for('cart.clear_cart') }}" class="btn btn-danger px-4">Clear Cart</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Cart Container */
+    .cart-container {
+        background: white;
+        border-radius: 24px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .cart-header {
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        margin-bottom: 1rem;
+        font-weight: 600;
+        color: var(--slate);
+    }
+    
+    .cart-header .col-product { flex: 3; }
+    .cart-header .col-price { flex: 1; text-align: center; }
+    .cart-header .col-quantity { flex: 1.5; text-align: center; }
+    .cart-header .col-subtotal { flex: 1; text-align: center; }
+    .cart-header .col-action { flex: 0.5; text-align: center; }
+    
+    /* Cart Item */
+    .cart-item {
+        display: flex;
+        align-items: center;
+        padding: 1.2rem 0;
+        border-bottom: 1px solid rgba(230,126,34,0.1);
+        gap: 1rem;
+    }
+    
+    .cart-item-product {
+        flex: 3;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .cart-item-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #FDF4E8;
+    }
+    
+    .cart-item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .no-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #F5F0E8;
+    }
+    
+    .cart-item-title {
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+        font-size: 1rem;
+    }
+    
+    .cart-item-meta {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .cart-item-price {
+        flex: 1;
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    .cart-item-quantity {
+        flex: 1.5;
+        text-align: center;
+    }
+    
+    .cart-item-subtotal {
+        flex: 1;
+        text-align: center;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    .cart-item-action {
+        flex: 0.5;
+        text-align: center;
+    }
+    
+    /* Quantity Controls */
+    .quantity-control {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #FEF3E4;
+        border-radius: 50px;
+        padding: 0.3rem;
+    }
+    
+    .quantity-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        background: white;
+        color: var(--primary);
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .quantity-btn:hover {
+        background: var(--primary);
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .quantity-input {
+        width: 50px;
+        text-align: center;
+        border: none;
+        background: transparent;
+        font-weight: 600;
+        padding: 0.3rem 0;
+    }
+    
+    .quantity-input:focus {
+        outline: none;
+    }
+    
+    /* Remove Button */
+    .remove-item {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        transition: all 0.2s;
+        padding: 8px;
+        border-radius: 50%;
+    }
+    
+    .remove-item:hover {
+        background: #FFEBEE;
+        transform: scale(1.1);
+    }
+    
+    /* Cart Footer */
+    .cart-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+    }
+    
+    .continue-shopping {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+    
+    .continue-shopping:hover {
+        color: var(--primary-dark);
+        transform: translateX(-3px);
+    }
+    
+    .clear-cart-btn {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        transition: 0.2s;
+        padding: 8px 16px;
+        border-radius: 50px;
+    }
+    
+    .clear-cart-btn:hover {
+        background: #FFEBEE;
+    }
+    
+    /* Order Summary */
+    .order-summary {
+        background: white;
+        border-radius: 24px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+        position: sticky;
+        top: 100px;
+    }
+    
+    .order-summary-title {
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+    }
+    
+    .summary-details {
+        margin-bottom: 1.5rem;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+    
+    .summary-row.total {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+    
+    .summary-divider {
+        height: 1px;
+        background: rgba(230,126,34,0.15);
+        margin: 1rem 0;
+    }
+    
+    /* Promo Code */
+    .promo-code {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Payment Methods */
+    .payment-methods {
+        border-top: 1px solid rgba(230,126,34,0.1);
+        padding-top: 1rem;
+    }
+    
+    /* Recommended Cards */
+    .recommended-card {
+        background: white;
+        border: 1px solid rgba(230,126,34,0.1);
+        transition: all 0.3s;
+        height: 100%;
+    }
+    
+    .recommended-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(230,126,34,0.1);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        background: white;
+        border-radius: 28px;
+        padding: 3rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    /* Price Label for Mobile */
+    .price-label {
+        display: none;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .cart-item {
+            flex-direction: column;
+            align-items: stretch;
+            position: relative;
+        }
+        
+        .cart-item-product {
+            flex: auto;
+        }
+        
+        .cart-item-price, .cart-item-quantity, .cart-item-subtotal {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed rgba(230,126,34,0.1);
+        }
+        
+        .price-label {
+            display: inline;
+            font-weight: 500;
+            color: var(--slate-light);
+        }
+        
+        .cart-item-action {
+            position: absolute;
+            top: 1rem;
+            right: 0;
+        }
+        
+        .cart-header {
+            display: none;
+        }
+        
+        .cart-footer {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .order-summary {
+            position: static;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .cart-item {
+        animation: fadeIn 0.3s ease forwards;
+    }
+</style>
+
+<script>
+    // Update quantity via AJAX
+    function updateQuantity(productId, quantity) {
+        fetch(`/cart/update/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ quantity: quantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update subtotal for this item
+                document.getElementById(`subtotal-${productId}`).innerText = `$${data.item_subtotal}`;
+                // Update overall totals
+                document.getElementById('subtotal-amount').innerText = `$${data.cart_subtotal}`;
+                document.getElementById('tax-amount').innerText = `$${data.tax}`;
+                document.getElementById('total-amount').innerText = `$${data.total}`;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    // Quantity button handlers
+    document.querySelectorAll('.quantity-btn.minus').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const productId = btn.dataset.productId;
+            const input = document.getElementById(`quantity-${productId}`);
+            let value = parseInt(input.value);
+            if (value > 1) {
+                value--;
+                input.value = value;
+                updateQuantity(productId, value);
+            }
+        });
+    });
+    
+    document.querySelectorAll('.quantity-btn.plus').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const productId = btn.dataset.productId;
+            const input = document.getElementById(`quantity-${productId}`);
+            const max = parseInt(input.max);
+            let value = parseInt(input.value);
+            if (value < max) {
+                value++;
+                input.value = value;
+                updateQuantity(productId, value);
+            } else {
+                document.getElementById(`warning-${productId}`).style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById(`warning-${productId}`).style.display = 'none';
+                }, 2000);
+            }
+        });
+    });
+    
+    // Manual input change
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', () => {
+            const productId = input.dataset.productId;
+            let value = parseInt(input.value);
+            const max = parseInt(input.max);
+            const min = parseInt(input.min);
+            
+            if (value > max) {
+                value = max;
+                input.value = value;
+                document.getElementById(`warning-${productId}`).style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById(`warning-${productId}`).style.display = 'none';
+                }, 2000);
+            }
+            if (value < min || isNaN(value)) {
+                value = min;
+                input.value = value;
+            }
+            updateQuantity(productId, value);
+        });
+    });
+    
+    // Remove item
+    document.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (confirm('Remove this item from your cart?')) {
+                const productId = btn.dataset.productId;
+                window.location.href = `/cart/remove/${productId}`;
+            }
+        });
+    });
+    
+    // Promo code
+    document.getElementById('applyPromo')?.addEventListener('click', () => {
+        const promoCode = document.getElementById('promoCode').value;
+        const messageDiv = document.getElementById('promoMessage');
+        
+        fetch('/cart/apply-promo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ promo_code: promoCode })
+        })
+        .then(response => response.json())
+        .then(data => {
+            messageDiv.style.display = 'block';
+            if (data.success) {
+                messageDiv.innerHTML = `<i class="fas fa-check-circle text-success"></i> ${data.message}`;
+                messageDiv.style.color = '#2E7D32';
+                // Update totals
+                document.getElementById('subtotal-amount').innerText = `$${data.cart_subtotal}`;
+                document.getElementById('tax-amount').innerText = `$${data.tax}`;
+                document.getElementById('total-amount').innerText = `$${data.total}`;
+            } else {
+                messageDiv.innerHTML = `<i class="fas fa-times-circle text-danger"></i> ${data.message}`;
+                messageDiv.style.color = '#C62828';
+            }
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        });
+    });
+</script>
+{% endblock %}

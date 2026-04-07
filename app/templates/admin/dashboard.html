@@ -1,0 +1,640 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-crown me-2" style="color: var(--primary);"></i>
+                    Admin <span style="color: var(--primary);">Dashboard</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-user-shield me-1"></i> Administrator
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <!-- Welcome Section -->
+    <div class="welcome-card mb-4 p-4 rounded-4"
+        style="background: linear-gradient(135deg, #FFF8F0 0%, #FFF2E6 100%); border: 1px solid rgba(230,126,34,0.2);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h2 class="mb-2" style="font-family: 'Playfair Display', serif;">
+                    Welcome back, <span style="color: var(--primary);">{{ current_user.username }}</span>!
+                </h2>
+                <p class="text-muted mb-0">Here's an overview of your store's performance and key metrics.</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <span class="text-muted">
+                    <i class="fas fa-calendar-alt me-1"></i> {{ now.strftime('%B %d, %Y') if now else 'Today' }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="stat-card stat-card-products">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <h3 class="stat-number">{{ products_count }}</h3>
+                    <p class="stat-label">Total Products</p>
+                    <div class="stat-trend">
+                        <span class="trend-up"><i class="fas fa-arrow-up"></i> +12%</span>
+                        <span class="trend-period">vs last month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card stat-card-orders">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <h3 class="stat-number">{{ orders_count }}</h3>
+                    <p class="stat-label">Total Orders</p>
+                    <div class="stat-trend">
+                        <span class="trend-up"><i class="fas fa-arrow-up"></i> +8%</span>
+                        <span class="trend-period">vs last month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card stat-card-customers">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <h3 class="stat-number">{{ users_count }}</h3>
+                    <p class="stat-label">Total Customers</p>
+                    <div class="stat-trend">
+                        <span class="trend-up"><i class="fas fa-arrow-up"></i> +5%</span>
+                        <span class="trend-period">vs last month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions & Recent Activity -->
+    <div class="row g-4">
+        <!-- Quick Actions Section -->
+        <div class="col-lg-4">
+            <div class="dashboard-card">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-bolt me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Quick Actions</h5>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <div class="quick-actions">
+                        <a href="{{ url_for('admin.add_product') }}" class="quick-action-item">
+                            <i class="fas fa-plus-circle"></i>
+                            <div>
+                                <div class="fw-semibold">Add New Product</div>
+                                <small class="text-muted">Create a new product listing</small>
+                            </div>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('admin.products') }}" class="quick-action-item">
+                            <i class="fas fa-edit"></i>
+                            <div>
+                                <div class="fw-semibold">Manage Products</div>
+                                <small class="text-muted">Edit, update, or remove products</small>
+                            </div>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('admin.orders') }}" class="quick-action-item">
+                            <i class="fas fa-truck"></i>
+                            <div>
+                                <div class="fw-semibold">View Orders</div>
+                                <small class="text-muted">Process and manage customer orders</small>
+                            </div>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('admin.customers') }}" class="quick-action-item">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <div class="fw-semibold">Manage Customers</div>
+                                <small class="text-muted">View and manage customer accounts</small>
+                            </div>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('admin.products') }}" class="quick-action-item"> <i
+                                class="fas fa-clipboard-list"></i>
+                            <div>
+                                <div class="fw-semibold">Inventory Dashboard</div>
+                                <small class="text-muted">Track stock levels and inventory</small>
+                            </div>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('analytics.dashboard') }}" class="quick-action-item">
+                            <i class="fas fa-chart-line"></i>
+                            <div>
+                                <div class="fw-semibold">Analytics</div>
+                                <small class="text-muted">View sales and performance metrics</small>
+                            </div>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div class="col-lg-8">
+            <div class="dashboard-card">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-history me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Recent Activity</h5>
+                    </div>
+                    <a href="#" class="view-all-link">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body-custom">
+                    {% if recent_orders %}
+                    <div class="activity-timeline">
+                        {% for order in recent_orders[:5] %}
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">New Order #{{ order.id }}</div>
+                                <div class="activity-date">{{ order.order_date.strftime('%b %d, %Y at %H:%M') }}</div>
+                                <div class="activity-user">
+                                    <i class="fas fa-user me-1"></i> {{ order.user.username if order.user else 'Guest'
+                                    }}
+                                </div>
+                            </div>
+                            <div class="activity-status">
+                                {% if order.status == 'Delivered' %}
+                                <span class="status-badge delivered">
+                                    <i class="fas fa-check-circle me-1"></i> Delivered
+                                </span>
+                                {% elif order.status == 'Processing' %}
+                                <span class="status-badge processing">
+                                    <i class="fas fa-spinner fa-pulse me-1"></i> Processing
+                                </span>
+                                {% elif order.status == 'Shipped' %}
+                                <span class="status-badge shipped">
+                                    <i class="fas fa-truck me-1"></i> Shipped
+                                </span>
+                                {% elif order.status == 'Pending' %}
+                                <span class="status-badge pending">
+                                    <i class="fas fa-clock me-1"></i> Pending
+                                </span>
+                                {% else %}
+                                <span class="status-badge">{{ order.status }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="activity-amount">
+                                ${{ "%.2f"|format(order.total_amount) }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state-small text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="mb-0">No recent orders yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="dashboard-card mt-4">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-server me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">System Status</h5>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <div class="system-status">
+                        <div class="status-item">
+                            <div class="status-label">
+                                <i class="fas fa-check-circle text-success"></i> Database
+                            </div>
+                            <span class="status-value text-success">Connected</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">
+                                <i class="fas fa-check-circle text-success"></i> Storage
+                            </div>
+                            <span class="status-value text-success">Working</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">
+                                <i class="fas fa-check-circle text-success"></i> Email Service
+                            </div>
+                            <span class="status-value text-success">Active</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">
+                                <i class="fas fa-chart-line"></i> Last Backup
+                            </div>
+                            <span class="status-value">{{ now.strftime('%Y-%m-%d %H:%M') if now else 'Today' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Statistics Cards */
+    .stat-card {
+        background: white;
+        border-radius: 24px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(230, 126, 34, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary);
+    }
+
+    .stat-card-products::before {
+        background: var(--primary);
+    }
+
+    .stat-card-orders::before {
+        background: var(--secondary);
+    }
+
+    .stat-card-customers::before {
+        background: var(--accent);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(230, 126, 34, 0.12);
+    }
+
+    .stat-icon-wrapper {
+        background: #FEF3E4;
+        border-radius: 20px;
+        padding: 0.75rem;
+    }
+
+    .stat-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        background: white;
+    }
+
+    .stat-card-products .stat-icon {
+        color: var(--primary);
+    }
+
+    .stat-card-orders .stat-icon {
+        color: var(--secondary);
+    }
+
+    .stat-card-customers .stat-icon {
+        color: var(--accent);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+        color: var(--slate);
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--slate-light);
+        margin-bottom: 0;
+    }
+
+    .stat-trend {
+        margin-top: 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    .trend-up {
+        color: #28a745;
+        font-weight: 600;
+    }
+
+    .trend-period {
+        color: var(--slate-light);
+        margin-left: 0.5rem;
+    }
+
+    /* Dashboard Card */
+    .dashboard-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(230, 126, 34, 0.1);
+    }
+
+    .card-header-custom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 2px solid rgba(230, 126, 34, 0.15);
+        background: #FFFCF8;
+    }
+
+    .card-body-custom {
+        padding: 1.5rem;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .quick-action-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.875rem;
+        border-radius: 16px;
+        text-decoration: none;
+        color: var(--slate);
+        transition: all 0.2s;
+        background: #FEFEFE;
+        border: 1px solid rgba(230, 126, 34, 0.08);
+    }
+
+    .quick-action-item:hover {
+        background: #FEF3E4;
+        transform: translateX(5px);
+        border-color: rgba(230, 126, 34, 0.2);
+    }
+
+    .quick-action-item i:first-child {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #FEF3E4;
+        border-radius: 12px;
+        color: var(--primary);
+        font-size: 1.1rem;
+    }
+
+    .quick-action-item:hover i:first-child {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* Activity Timeline */
+    .activity-timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #FEFEFE;
+        border-radius: 16px;
+        transition: 0.2s;
+        border: 1px solid rgba(230, 126, 34, 0.05);
+    }
+
+    .activity-item:hover {
+        background: #FEF3E4;
+        transform: translateX(3px);
+    }
+
+    .activity-icon {
+        width: 45px;
+        height: 45px;
+        background: #FEF3E4;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 1.2rem;
+    }
+
+    .activity-details {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .activity-date {
+        font-size: 0.7rem;
+        color: var(--slate-light);
+    }
+
+    .activity-user {
+        font-size: 0.7rem;
+        color: var(--slate-light);
+        margin-top: 0.2rem;
+    }
+
+    .activity-amount {
+        font-weight: 800;
+        color: var(--primary);
+        font-size: 1.1rem;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .status-badge.delivered {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+
+    .status-badge.processing {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+
+    .status-badge.shipped {
+        background: #E3F2FD;
+        color: #1565C0;
+    }
+
+    .status-badge.pending {
+        background: #FFF8E1;
+        color: #F57F17;
+    }
+
+    /* System Status */
+    .system-status {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: #FEFEFE;
+        border-radius: 12px;
+        border: 1px solid rgba(230, 126, 34, 0.08);
+    }
+
+    .status-label {
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+
+    .status-value {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--slate);
+    }
+
+    .view-all-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+
+    .view-all-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Welcome Card */
+    .welcome-card {
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFF2E6 100%);
+        border: 1px solid rgba(230, 126, 34, 0.2);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .stat-card {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .activity-item {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .activity-amount {
+            margin-top: 0.5rem;
+        }
+
+        .system-status {
+            grid-template-columns: 1fr;
+        }
+
+        .status-item {
+            flex-direction: column;
+            gap: 0.5rem;
+            text-align: center;
+        }
+
+        .quick-action-item {
+            padding: 0.75rem;
+        }
+
+        .quick-action-item i:first-child {
+            width: 35px;
+            height: 35px;
+        }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stat-card,
+    .dashboard-card {
+        animation: fadeInUp 0.4s ease forwards;
+    }
+
+    .stat-card:nth-child(1) {
+        animation-delay: 0.05s;
+    }
+
+    .stat-card:nth-child(2) {
+        animation-delay: 0.1s;
+    }
+
+    .stat-card:nth-child(3) {
+        animation-delay: 0.15s;
+    }
+</style>
+{% endblock %}

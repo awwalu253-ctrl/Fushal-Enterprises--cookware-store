@@ -1,0 +1,711 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .stats-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .stats-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .stats-icon {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        opacity: 0.3;
+        font-size: 3rem;
+    }
+
+    .btn-action {
+        transition: all 0.2s ease;
+        margin: 2px;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(230, 126, 34, 0.05);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-badge.verified {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+
+    .status-badge.unverified {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+
+    .customer-avatar {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, #E67E22, #F39C12);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        margin-right: 8px;
+    }
+</style>
+
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-users me-2" style="color: var(--primary);"></i>
+                    Customer <span style="color: var(--primary);">Management</span>
+                </h1>
+                <p class="text-muted mt-2 mb-0">Manage and view all registered customers, their orders, and activity.</p>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-user-check me-1"></i> {{ total_customers }} Total Customers
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-4">
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="stats-card bg-primary text-white position-relative">
+                <div class="stats-icon"><i class="fas fa-users"></i></div>
+                <div class="card-body">
+                    <h6 class="mb-2 opacity-75"><i class="fas fa-users me-1"></i> Total Customers</h6>
+                    <h2 class="display-4 fw-bold mb-0">{{ total_customers }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stats-card bg-success text-white position-relative">
+                <div class="stats-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="card-body">
+                    <h6 class="mb-2 opacity-75"><i class="fas fa-check-circle me-1"></i> Verified Customers</h6>
+                    <h2 class="display-4 fw-bold mb-0">{{ verified_customers }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stats-card bg-warning text-white position-relative">
+                <div class="stats-icon"><i class="fas fa-clock"></i></div>
+                <div class="card-body">
+                    <h6 class="mb-2 opacity-75"><i class="fas fa-clock me-1"></i> Unverified Customers</h6>
+                    <h2 class="display-4 fw-bold mb-0">{{ unverified_customers }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stats-card bg-info text-white position-relative">
+                <div class="stats-icon"><i class="fas fa-calendar-plus"></i></div>
+                <div class="card-body">
+                    <h6 class="mb-2 opacity-75"><i class="fas fa-calendar-plus me-1"></i> New This Month</h6>
+                    <h2 class="display-4 fw-bold mb-0">{{ new_this_month }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Card -->
+    <div class="filter-card mb-4">
+        <div class="filter-body">
+            <form method="GET" action="{{ url_for('admin.customers') }}" class="row g-3">
+                <div class="col-md-4">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" name="search" class="search-input" placeholder="Search by name or email..."
+                            value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select filter-select">
+                        <option value="all" {% if status_filter=='all' %}selected{% endif %}>All Customers</option>
+                        <option value="verified" {% if status_filter=='verified' %}selected{% endif %}>Verified Only
+                        </option>
+                        <option value="unverified" {% if status_filter=='unverified' %}selected{% endif %}>Unverified
+                            Only</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary-custom w-100">
+                        <i class="fas fa-filter me-2"></i> Filter
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ url_for('admin.customers') }}" class="btn btn-outline-custom w-100">
+                        <i class="fas fa-sync-alt me-2"></i> Reset
+                    </a>
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-success w-100" onclick="exportCustomers()" title="Export to CSV">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Customers Table Card -->
+    <div class="customers-table-container">
+        <div class="table-header">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-list me-2" style="color: var(--primary);"></i> Registered Customers</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="customers-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Joined Date</th>
+                        <th>Orders</th>
+                        <th>Total Spent</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                        <td data-label="ID">
+                            <span class="customer-id">#{{ customer.id }}</span>
+                        </td>
+                        <td data-label="Customer">
+                            <div class="customer-info">
+                                <div class="customer-avatar">
+                                    {{ customer.username[0]|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">{{ customer.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td data-label="Email">
+                            <div class="customer-email">
+                                <i class="fas fa-envelope me-1" style="color: var(--primary);"></i>
+                                {{ customer.email }}
+                            </div>
+                        </td>
+                        <td data-label="Status">
+                            {% if customer.is_verified %}
+                            <span class="status-badge verified">
+                                <i class="fas fa-check-circle"></i> Verified
+                            </span>
+                            {% else %}
+                            <span class="status-badge unverified">
+                                <i class="fas fa-clock"></i> Unverified
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Joined Date">
+                            <div class="joined-date">
+                                <i class="far fa-calendar-alt me-1" style="color: var(--primary);"></i>
+                                {{ customer.created_at.strftime('%Y-%m-%d') }}
+                            </div>
+                        </td>
+                        <td data-label="Orders">
+                            <span class="orders-badge">{{ customer.orders|length }}</span>
+                        </td>
+                        <td data-label="Total Spent">
+                            <span class="total-spent">${{ "%.2f"|format(customer.orders|sum(attribute='total_amount')) }}</span>
+                        </td>
+                        <td data-label="Actions">
+                            <div class="action-buttons">
+                                <button class="btn-action view" onclick="viewCustomer({{ customer.id }})" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-action email" onclick="sendEmail('{{ customer.email }}', '{{ customer.username }}')" title="Send Email">
+                                    <i class="fas fa-envelope"></i>
+                                </button>
+                                <button class="btn-action chat" onclick="sendInternalMessage({{ customer.id }}, '{{ customer.username }}')" title="Start Chat">
+                                    <i class="fas fa-comment-dots"></i>
+                                </button>
+                                {% if not customer.is_verified %}
+                                <button class="btn-action verify" onclick="verifyCustomer({{ customer.id }})" title="Verify Customer">
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <div class="pagination-wrapper">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if page > 1 %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.customers', page=page-1, search=search_query, status=status_filter) }}">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for p in range(1, total_pages + 1) %}
+                    <li class="page-item {% if p == page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('admin.customers', page=p, search=search_query, status=status_filter) }}">{{ p }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page < total_pages %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.customers', page=page+1, search=search_query, status=status_filter) }}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Customer Details Modal -->
+<div class="modal fade" id="customerModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0" style="background: linear-gradient(135deg, #FFF8F0 0%, #FFF2E6 100%);">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-user-circle me-2" style="color: var(--primary);"></i>
+                    Customer Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="customer-details">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading customer details...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Filter Card */
+    .filter-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.25rem;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .filter-body {
+        width: 100%;
+    }
+    
+    .search-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #FEF3E4;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(230,126,34,0.2);
+    }
+    
+    .search-wrapper i {
+        color: var(--primary);
+    }
+    
+    .search-input {
+        border: none;
+        background: transparent;
+        outline: none;
+        width: 100%;
+        font-size: 0.9rem;
+    }
+    
+    .filter-select {
+        border-radius: 50px;
+        border: 1px solid rgba(230,126,34,0.2);
+        padding: 0.5rem 1rem;
+    }
+    
+    /* Customers Table */
+    .customers-table-container {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .table-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        background: #FFFCF8;
+    }
+    
+    .customers-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .customers-table th {
+        padding: 1rem 1rem;
+        background: #FFFCF8;
+        font-weight: 600;
+        color: var(--slate);
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        font-size: 0.85rem;
+    }
+    
+    .customers-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(230,126,34,0.08);
+        vertical-align: middle;
+    }
+    
+    .customers-table tr:hover {
+        background: rgba(230,126,34,0.02);
+    }
+    
+    .customer-id {
+        font-weight: 700;
+        color: var(--primary);
+        font-family: monospace;
+    }
+    
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .customer-email {
+        font-size: 0.85rem;
+    }
+    
+    .joined-date {
+        font-size: 0.85rem;
+        color: var(--slate-light);
+    }
+    
+    .orders-badge {
+        display: inline-block;
+        background: #FEF3E4;
+        padding: 0.25rem 0.6rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--primary-dark);
+    }
+    
+    .total-spent {
+        font-weight: 700;
+        color: var(--primary-dark);
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-action.view {
+        background: #FEF3E4;
+        color: var(--primary);
+    }
+    
+    .btn-action.view:hover {
+        background: var(--primary);
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .btn-action.email {
+        background: #E3F2FD;
+        color: #1565C0;
+    }
+    
+    .btn-action.email:hover {
+        background: #1565C0;
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .btn-action.chat {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .btn-action.chat:hover {
+        background: #2E7D32;
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .btn-action.verify {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+    
+    .btn-action.verify:hover {
+        background: #E65100;
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    /* Pagination */
+    .pagination-wrapper {
+        padding: 1rem;
+        border-top: 1px solid rgba(230,126,34,0.1);
+        background: #FFFCF8;
+    }
+    
+    .pagination .page-link {
+        color: var(--primary);
+        border-radius: 50px;
+        margin: 0 3px;
+        border: 1px solid rgba(230,126,34,0.2);
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: var(--btn-grad);
+        border-color: var(--primary);
+        color: white;
+    }
+    
+    .pagination .page-link:hover {
+        background: #FEF3E4;
+        border-color: var(--primary);
+        color: var(--primary-dark);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .customers-table thead {
+            display: none;
+        }
+        
+        .customers-table tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(230,126,34,0.1);
+            border-radius: 16px;
+            padding: 1rem;
+        }
+        
+        .customers-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed rgba(230,126,34,0.08);
+        }
+        
+        .customers-table td:last-child {
+            border-bottom: none;
+        }
+        
+        .customers-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--slate-light);
+            width: 40%;
+        }
+        
+        .action-buttons {
+            justify-content: flex-end;
+        }
+        
+        .stats-card .display-4 {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<script>
+    function viewCustomer(customerId) {
+        fetch(`/admin/customer/${customerId}/details`)
+            .then(response => response.json())
+            .then(data => {
+                const modal = document.getElementById('customer-details');
+                modal.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label><i class="fas fa-user"></i> Username</label>
+                            <div class="info-value">${escapeHtml(data.username)}</div>
+                        </div>
+                        <div class="info-group">
+                            <label><i class="fas fa-envelope"></i> Email</label>
+                            <div class="info-value">${escapeHtml(data.email)}</div>
+                        </div>
+                        <div class="info-group">
+                            <label><i class="fas fa-check-circle"></i> Status</label>
+                            <div class="info-value">${data.is_verified ? '<span class="status-badge verified"><i class="fas fa-check-circle"></i> Verified</span>' : '<span class="status-badge unverified"><i class="fas fa-clock"></i> Unverified</span>'}</div>
+                        </div>
+                        <div class="info-group">
+                            <label><i class="fas fa-calendar"></i> Joined</label>
+                            <div class="info-value">${data.created_at}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label><i class="fas fa-shopping-cart"></i> Total Orders</label>
+                            <div class="info-value"><span class="orders-badge fs-5">${data.total_orders}</span></div>
+                        </div>
+                        <div class="info-group">
+                            <label><i class="fas fa-dollar-sign"></i> Total Spent</label>
+                            <div class="info-value"><strong class="total-spent fs-4">$${data.total_spent}</strong></div>
+                        </div>
+                        <div class="info-group">
+                            <label><i class="fas fa-clock"></i> Last Order</label>
+                            <div class="info-value">${data.last_order_date || '<span class="text-muted">No orders yet</span>'}</div>
+                        </div>
+                        <div class="info-group">
+                            <label><i class="fas fa-star"></i> Reviews</label>
+                            <div class="info-value">${data.total_reviews}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${data.recent_orders && data.recent_orders.length > 0 ? `
+                <hr>
+                <h6 class="mt-3 fw-bold"><i class="fas fa-history me-2" style="color: var(--primary);"></i>Recent Orders</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order #</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.recent_orders.map(order => `
+                                <tr>
+                                    <td><a href="/admin/orders" style="color: var(--primary);">#${order.id}</a></td>
+                                    <td>${order.date}</td>
+                                    <td><strong>$${order.total}</strong></td>
+                                    <td><span class="status-badge ${order.status === 'delivered' ? 'verified' : (order.status === 'cancelled' ? 'unverified' : '')}">${order.status}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                ` : '<div class="text-center text-muted mt-3">No recent orders</div>'}
+                
+                <hr>
+                <div class="text-center mt-3">
+                    <button class="btn btn-primary-custom" onclick="sendEmail('${data.email}', '${data.username}')">
+                        <i class="fas fa-envelope me-2"></i> Send Email
+                    </button>
+                    <button class="btn btn-outline-custom" onclick="sendInternalMessage(${data.id}, '${data.username}')">
+                        <i class="fas fa-comment-dots me-2"></i> Start Chat
+                    </button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i> Close
+                    </button>
+                </div>
+            `;
+                new bootstrap.Modal(document.getElementById('customerModal')).show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('customer-details').innerHTML = `
+                <div class="alert alert-danger text-center py-4">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2 d-block"></i>
+                    Error loading customer details. Please try again.
+                </div>
+            `;
+            });
+    }
+
+    function sendEmail(email, username) {
+        window.location.href = `mailto:${email}?subject=Message from Awwal Investment&body=Hello ${username},%0A%0A`;
+    }
+
+    function verifyCustomer(customerId) {
+        if (confirm('Are you sure you want to verify this customer? They will be able to login immediately.')) {
+            fetch(`/admin/customer/${customerId}/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(response => response.json())
+                .then(() => {
+                    location.reload();
+                })
+                .catch(error => {
+                    alert('Error verifying customer. Please try again.');
+                });
+        }
+    }
+
+    function sendInternalMessage(customerId, username) {
+        if (confirm(`Start a chat conversation with ${username}?`)) {
+            window.location.href = `/chat/admin/customer-chat/${customerId}`;
+        }
+    }
+
+    function exportCustomers() {
+        window.location.href = `{{ url_for('admin.export_customers') }}?search={{ search_query }}&status={{ status_filter }}`;
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+</script>
+{% endblock %}

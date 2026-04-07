@@ -1,0 +1,550 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                <i class="fas fa-envelope me-2" style="color: var(--primary);"></i>
+                Contact <span style="color: var(--primary);">Us</span>
+            </h1>
+            <p class="text-muted mt-2 mb-0">Have questions about our products or need assistance? We're here to help!</p>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row g-4">
+        <!-- Contact Form -->
+        <div class="col-lg-7">
+            <div class="contact-form-card">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-paper-plane me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Send us a Message</h5>
+                    </div>
+                    <div class="response-time">
+                        <i class="fas fa-clock me-1"></i>
+                        <span>Typically replies within 24 hours</span>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    {% if current_user.is_authenticated %}
+                    <form method="POST" action="{{ url_for('main.submit_contact') }}" id="contactForm">
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-tag me-2" style="color: var(--primary);"></i>Subject
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text contact-prefix">
+                                    <i class="fas fa-heading"></i>
+                                </span>
+                                <input type="text" name="subject" class="form-control" 
+                                       placeholder="What is this regarding?" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-comment-dots me-2" style="color: var(--primary);"></i>Message
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text contact-prefix" style="align-items: flex-start; padding-top: 12px;">
+                                    <i class="fas fa-edit"></i>
+                                </span>
+                                <textarea name="message" class="form-control" rows="6" 
+                                          placeholder="Please provide details about your inquiry..." required></textarea>
+                            </div>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle me-1"></i> 
+                                Please provide as much detail as possible so we can assist you better.
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="reset" class="btn btn-outline-custom">
+                                <i class="fas fa-undo-alt me-2"></i> Clear
+                            </button>
+                            <button type="submit" class="btn btn-primary-custom" id="submitBtn">
+                                <i class="fas fa-paper-plane me-2"></i> Send Message
+                            </button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="login-required">
+                        <div class="login-icon">
+                            <i class="fas fa-lock fa-3x"></i>
+                        </div>
+                        <h5>Login Required</h5>
+                        <p>Please login to your account to send us a message. This helps us serve you better and respond to your inquiry promptly.</p>
+                        <div class="login-buttons">
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-primary-custom">
+                                <i class="fas fa-sign-in-alt me-2"></i> Login
+                            </a>
+                            <a href="{{ url_for('auth.signup') }}" class="btn btn-outline-custom">
+                                <i class="fas fa-user-plus me-2"></i> Create Account
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Information -->
+        <div class="col-lg-5">
+            <div class="contact-info-card">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-info-circle me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Contact Information</h5>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <div class="info-items">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="info-content">
+                                <strong>Address</strong>
+                                <span>Lagos, Nigeria</span>
+                                <small>Visit us during business hours</small>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-phone-alt"></i>
+                            </div>
+                            <div class="info-content">
+                                <strong>Phone</strong>
+                                <span>+234 123 456 7890</span>
+                                <small>Mon-Sat, 9AM - 6PM</small>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="info-content">
+                                <strong>Email</strong>
+                                <span>support@awwalinvestment.com</span>
+                                <a href="mailto:support@awwalinvestment.com" class="btn-link">Send us an email</a>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="info-content">
+                                <strong>Business Hours</strong>
+                                <span>Monday - Saturday: 9:00 AM - 6:00 PM</span>
+                                <span>Sunday: Closed</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="social-section">
+                        <div class="social-title">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Connect With Us</span>
+                        </div>
+                        <div class="social-links">
+                            <a href="#" class="social-link facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="social-link instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="social-link twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="social-link whatsapp">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- FAQ Link Card -->
+            <div class="faq-link-card mt-4">
+                <div class="faq-link-content">
+                    <i class="fas fa-question-circle fa-2x"></i>
+                    <div>
+                        <h6 class="mb-1">Frequently Asked Questions</h6>
+                        <p class="small mb-2">Find quick answers to common questions</p>
+                        <a href="{{ url_for('main.faq') }}" class="btn-link">
+                            Visit FAQ <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+    
+    /* Contact Form Card */
+    .contact-form-card, .contact-info-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .card-header-custom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        background: #FFFCF8;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .response-time {
+        font-size: 0.75rem;
+        color: var(--slate-light);
+        background: #FEF3E4;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+    }
+    
+    .card-body-custom {
+        padding: 1.5rem;
+    }
+    
+    /* Form Controls */
+    .form-control {
+        border-radius: 12px;
+        border: 1px solid rgba(230,126,34,0.2);
+        padding: 0.75rem 1rem;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(230,126,34,0.1);
+    }
+    
+    .input-group-text.contact-prefix {
+        background: #FEF3E4;
+        border: 1px solid rgba(230,126,34,0.2);
+        border-right: none;
+        color: var(--primary);
+        border-radius: 12px 0 0 12px;
+    }
+    
+    .input-group .form-control {
+        border-radius: 0 12px 12px 0;
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 0.5rem;
+    }
+    
+    /* Login Required */
+    .login-required {
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .login-icon {
+        width: 80px;
+        height: 80px;
+        background: #FEF3E4;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: var(--primary);
+    }
+    
+    .login-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    /* Info Items */
+    .info-items {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+    
+    .info-item {
+        display: flex;
+        gap: 1rem;
+        padding: 0.5rem;
+        border-radius: 12px;
+        transition: all 0.2s;
+    }
+    
+    .info-item:hover {
+        background: #FEF3E4;
+        transform: translateX(5px);
+    }
+    
+    .info-icon {
+        width: 45px;
+        height: 45px;
+        background: #FEF3E4;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    
+    .info-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .info-content strong {
+        font-size: 0.85rem;
+        color: var(--slate);
+    }
+    
+    .info-content span {
+        font-size: 0.9rem;
+        color: var(--slate-light);
+    }
+    
+    .info-content small {
+        font-size: 0.7rem;
+        color: var(--slate-light);
+        margin-top: 0.2rem;
+    }
+    
+    .btn-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+    }
+    
+    .btn-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Social Section */
+    .social-section {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .social-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .social-links {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    .social-link {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        text-decoration: none;
+        color: white;
+    }
+    
+    .social-link.facebook {
+        background: #1877f2;
+    }
+    
+    .social-link.instagram {
+        background: #e4405f;
+    }
+    
+    .social-link.twitter {
+        background: #1da1f2;
+    }
+    
+    .social-link.whatsapp {
+        background: #25d366;
+    }
+    
+    .social-link:hover {
+        transform: translateY(-3px);
+        filter: brightness(0.9);
+    }
+    
+    /* FAQ Link Card */
+    .faq-link-card {
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFF2E6 100%);
+        border-radius: 20px;
+        padding: 1rem;
+        border: 1px solid rgba(230,126,34,0.2);
+    }
+    
+    .faq-link-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .faq-link-content i {
+        color: var(--primary);
+    }
+    
+    .faq-link-content p {
+        margin-bottom: 0;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .card-body-custom {
+            padding: 1.25rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-actions .btn {
+            width: 100%;
+        }
+        
+        .login-buttons {
+            flex-direction: column;
+        }
+        
+        .login-buttons .btn {
+            width: 100%;
+        }
+        
+        .info-item {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .faq-link-content {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .social-links {
+            justify-content: center;
+        }
+        
+        .card-header-custom {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .contact-form-card, .contact-info-card {
+        animation: fadeInUp 0.4s ease forwards;
+    }
+    
+    /* Loading State */
+    .btn-primary-custom.loading {
+        opacity: 0.7;
+        cursor: wait;
+    }
+    
+    .btn-primary-custom.loading i {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+    // Form submission with loading state
+    const form = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            const subject = document.querySelector('input[name="subject"]');
+            const message = document.querySelector('textarea[name="message"]');
+            let hasError = false;
+            
+            if (!subject.value.trim()) {
+                subject.classList.add('is-invalid');
+                hasError = true;
+            } else {
+                subject.classList.remove('is-invalid');
+            }
+            
+            if (!message.value.trim()) {
+                message.classList.add('is-invalid');
+                hasError = true;
+            } else {
+                message.classList.remove('is-invalid');
+            }
+            
+            if (hasError) {
+                e.preventDefault();
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse me-2"></i> Sending...';
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        });
+    }
+    
+    // Remove invalid class on input
+    const inputs = document.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+        });
+    });
+</script>
+{% endblock %}

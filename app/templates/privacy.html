@@ -1,0 +1,732 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                Privacy <span style="color: var(--primary);">Policy</span>
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}" style="color: var(--primary);">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Privacy Policy</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="privacy-card">
+                <div class="privacy-header">
+                    <div class="privacy-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h2 class="mb-2">Privacy Policy</h2>
+                    <p class="text-muted mb-0">Last Updated: April 2025</p>
+                </div>
+                
+                <div class="privacy-body">
+                    <!-- Quick Navigation -->
+                    <div class="quick-nav mb-4">
+                        <div class="quick-nav-title">
+                            <i class="fas fa-list-ul me-2"></i> Quick Navigation
+                        </div>
+                        <div class="quick-nav-links">
+                            <a href="#section1">1. Information Collection</a>
+                            <a href="#section2">2. How We Use Data</a>
+                            <a href="#section3">3. Email Communications</a>
+                            <a href="#section4">4. Data Protection</a>
+                            <a href="#section5">5. Cookies</a>
+                            <a href="#section6">6. Third-Party Services</a>
+                            <a href="#section7">7. Your Rights</a>
+                            <a href="#section8">8. Data Retention</a>
+                            <a href="#section9">9. Children's Privacy</a>
+                            <a href="#section10">10. Policy Updates</a>
+                            <a href="#section11">11. Contact Us</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Trust Badge -->
+                    <div class="trust-badge mb-4">
+                        <i class="fas fa-lock"></i>
+                        <span>Your data is safe with us. We never sell your personal information.</span>
+                    </div>
+                    
+                    <!-- Section 1 -->
+                    <div class="privacy-section" id="section1">
+                        <div class="section-number">1</div>
+                        <div class="section-content">
+                            <h3>Information We Collect</h3>
+                            <p>We collect the following information to provide and improve our services:</p>
+                            <div class="info-grid">
+                                <div class="info-card">
+                                    <i class="fas fa-user-circle"></i>
+                                    <strong>Personal Information</strong>
+                                    <span>Name, email, phone, shipping address</span>
+                                </div>
+                                <div class="info-card">
+                                    <i class="fas fa-lock"></i>
+                                    <strong>Account Information</strong>
+                                    <span>Username, encrypted password</span>
+                                </div>
+                                <div class="info-card">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <strong>Order Information</strong>
+                                    <span>Products, order history, payment details</span>
+                                </div>
+                                <div class="info-card">
+                                    <i class="fas fa-chart-line"></i>
+                                    <strong>Usage Data</strong>
+                                    <span>IP address, browser, pages visited</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 2 -->
+                    <div class="privacy-section" id="section2">
+                        <div class="section-number">2</div>
+                        <div class="section-content">
+                            <h3>How We Use Your Information</h3>
+                            <p>Your information helps us provide better service:</p>
+                            <div class="uses-list">
+                                <div class="use-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Process and fulfill your orders</span>
+                                </div>
+                                <div class="use-item">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <span>Send order confirmations and status updates</span>
+                                </div>
+                                <div class="use-item">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Improve our products and services</span>
+                                </div>
+                                <div class="use-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Send promotional emails (with your consent)</span>
+                                </div>
+                                <div class="use-item">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>Prevent fraud and ensure security</span>
+                                </div>
+                                <div class="use-item">
+                                    <i class="fas fa-gavel"></i>
+                                    <span>Comply with legal obligations</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 3 -->
+                    <div class="privacy-section" id="section3">
+                        <div class="section-number">3</div>
+                        <div class="section-content">
+                            <h3>Email Communications</h3>
+                            <p>By creating an account, you consent to receive:</p>
+                            <div class="email-types">
+                                <div class="email-type required">
+                                    <i class="fas fa-check-circle"></i>
+                                    <div>
+                                        <strong>Required Communications</strong>
+                                        <small>Order confirmations, password resets, account updates</small>
+                                    </div>
+                                </div>
+                                <div class="email-type optional">
+                                    <i class="fas fa-envelope-open-text"></i>
+                                    <div>
+                                        <strong>Optional Communications</strong>
+                                        <small>Newsletter, promotions, special offers (you can unsubscribe anytime)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 4 -->
+                    <div class="privacy-section" id="section4">
+                        <div class="section-number">4</div>
+                        <div class="section-content">
+                            <h3>Data Protection</h3>
+                            <p>We implement robust security measures:</p>
+                            <div class="security-grid">
+                                <div class="security-item">
+                                    <i class="fas fa-lock"></i>
+                                    <span>Encrypted password storage</span>
+                                </div>
+                                <div class="security-item">
+                                    <i class="fas fa-ssl"></i>
+                                    <span>Secure SSL/TLS connections</span>
+                                </div>
+                                <div class="security-item">
+                                    <i class="fas fa-clipboard-list"></i>
+                                    <span>Regular security audits</span>
+                                </div>
+                                <div class="security-item">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Limited employee access</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 5 -->
+                    <div class="privacy-section" id="section5">
+                        <div class="section-number">5</div>
+                        <div class="section-content">
+                            <h3>Cookies</h3>
+                            <p>We use cookies to enhance your experience:</p>
+                            <div class="cookies-list">
+                                <div class="cookie-item">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <span>Remember your shopping cart</span>
+                                </div>
+                                <div class="cookie-item">
+                                    <i class="fas fa-user-check"></i>
+                                    <span>Keep you logged in</span>
+                                </div>
+                                <div class="cookie-item">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <span>Analyze website traffic</span>
+                                </div>
+                                <div class="cookie-item">
+                                    <i class="fas fa-user-cog"></i>
+                                    <span>Personalize your experience</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 6 -->
+                    <div class="privacy-section" id="section6">
+                        <div class="section-number">6</div>
+                        <div class="section-content">
+                            <h3>Third-Party Services</h3>
+                            <p>We may share data with trusted partners:</p>
+                            <div class="third-party-grid">
+                                <div class="third-party-item">
+                                    <i class="fab fa-cc-visa"></i>
+                                    <div>
+                                        <strong>Payment Processors</strong>
+                                        <small>Secure and encrypted transactions</small>
+                                    </div>
+                                </div>
+                                <div class="third-party-item">
+                                    <i class="fas fa-truck"></i>
+                                    <div>
+                                        <strong>Shipping Carriers</strong>
+                                        <small>For order delivery</small>
+                                    </div>
+                                </div>
+                                <div class="third-party-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <div>
+                                        <strong>Email Providers</strong>
+                                        <small>For communications</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 7 -->
+                    <div class="privacy-section" id="section7">
+                        <div class="section-number">7</div>
+                        <div class="section-content">
+                            <h3>Your Rights</h3>
+                            <p>You have control over your data:</p>
+                            <div class="rights-grid">
+                                <div class="right-item">
+                                    <i class="fas fa-eye"></i>
+                                    <span>Access your personal data</span>
+                                </div>
+                                <div class="right-item">
+                                    <i class="fas fa-edit"></i>
+                                    <span>Correct inaccurate information</span>
+                                </div>
+                                <div class="right-item">
+                                    <i class="fas fa-trash-alt"></i>
+                                    <span>Request account deletion</span>
+                                </div>
+                                <div class="right-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Opt-out of marketing emails</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 8 -->
+                    <div class="privacy-section" id="section8">
+                        <div class="section-number">8</div>
+                        <div class="section-content">
+                            <h3>Data Retention</h3>
+                            <p>We retain your information for as long as your account is active or as needed to provide services. You may request account deletion at any time, and we will remove your personal information within 30 days.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 9 -->
+                    <div class="privacy-section" id="section9">
+                        <div class="section-number">9</div>
+                        <div class="section-content">
+                            <h3>Children's Privacy</h3>
+                            <p>Our website is not intended for children under 13. We do not knowingly collect information from children. If you believe a child has provided us with personal information, please contact us immediately.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 10 -->
+                    <div class="privacy-section" id="section10">
+                        <div class="section-number">10</div>
+                        <div class="section-content">
+                            <h3>Updates to Policy</h3>
+                            <p>We may update this privacy policy periodically. Changes will be posted on this page with an updated "Last Updated" date. Significant changes will be notified via email.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 11 -->
+                    <div class="privacy-section" id="section11">
+                        <div class="section-number">11</div>
+                        <div class="section-content">
+                            <h3>Contact Us</h3>
+                            <p>For privacy concerns or data requests:</p>
+                            <div class="contact-info">
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <strong>Email:</strong> privacy@awwalinvestment.com
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <strong>Phone:</strong> +234 123 456 7890
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <strong>Address:</strong> Lagos, Nigeria
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Privacy Commitment -->
+                    <div class="commitment-box">
+                        <div class="commitment-icon">
+                            <i class="fas fa-hand-holding-heart"></i>
+                        </div>
+                        <div class="commitment-text">
+                            <strong>Our Commitment to You</strong>
+                            <p>We are committed to protecting your personal information and will never sell your data to third parties. Your trust is our priority.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="privacy-footer">
+                    <a href="{{ url_for('auth.signup') }}" class="btn btn-primary-custom">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Sign Up
+                    </a>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-outline-custom">
+                        <i class="fas fa-home me-2"></i> Return to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Privacy Card */
+    .privacy-card {
+        background: white;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .privacy-header {
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFF2E6 100%);
+        padding: 2rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .privacy-icon {
+        width: 70px;
+        height: 70px;
+        background: var(--btn-grad);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2rem;
+        color: white;
+        box-shadow: 0 5px 15px rgba(230,126,34,0.3);
+    }
+    
+    .privacy-body {
+        padding: 2rem;
+    }
+    
+    /* Quick Navigation */
+    .quick-nav {
+        background: #FEF3E4;
+        border-radius: 16px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .quick-nav-title {
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: var(--primary-dark);
+    }
+    
+    .quick-nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .quick-nav-links a {
+        background: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        color: var(--slate);
+        transition: all 0.2s;
+    }
+    
+    .quick-nav-links a:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    /* Trust Badge */
+    .trust-badge {
+        background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+        border-radius: 12px;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        color: #2E7D32;
+    }
+    
+    .trust-badge i {
+        font-size: 1.5rem;
+    }
+    
+    /* Privacy Section */
+    .privacy-section {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border-radius: 16px;
+        transition: all 0.2s;
+    }
+    
+    .privacy-section:hover {
+        background: rgba(230,126,34,0.02);
+    }
+    
+    .section-number {
+        width: 40px;
+        height: 40px;
+        background: var(--btn-grad);
+        color: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    
+    .section-content {
+        flex: 1;
+    }
+    
+    .section-content h3 {
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.3rem;
+    }
+    
+    .section-content p {
+        color: var(--slate);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+    
+    /* Info Grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .info-card {
+        background: #F8F9FA;
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+    }
+    
+    .info-card i {
+        font-size: 1.5rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .info-card strong {
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    
+    .info-card span {
+        font-size: 0.8rem;
+        color: var(--slate-light);
+    }
+    
+    /* Uses List */
+    .uses-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    
+    .use-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem;
+    }
+    
+    .use-item i {
+        color: var(--primary);
+        width: 20px;
+    }
+    
+    /* Email Types */
+    .email-types {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .email-type {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+    }
+    
+    .email-type.required {
+        background: #E3F2FD;
+    }
+    
+    .email-type.optional {
+        background: #FFF3E0;
+    }
+    
+    .email-type i {
+        font-size: 1.2rem;
+        margin-top: 0.2rem;
+    }
+    
+    .email-type.required i {
+        color: #1565C0;
+    }
+    
+    .email-type.optional i {
+        color: #E65100;
+    }
+    
+    /* Security Grid */
+    .security-grid, .cookies-list, .rights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    
+    .security-item, .cookie-item, .right-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem;
+        background: #F8F9FA;
+        border-radius: 10px;
+    }
+    
+    .security-item i, .cookie-item i, .right-item i {
+        width: 25px;
+        color: var(--primary);
+    }
+    
+    /* Third Party Grid */
+    .third-party-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    
+    .third-party-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: #F8F9FA;
+        border-radius: 12px;
+    }
+    
+    .third-party-item i {
+        font-size: 1.5rem;
+        width: 40px;
+        color: var(--primary);
+    }
+    
+    .third-party-item div {
+        flex: 1;
+    }
+    
+    .third-party-item small {
+        display: block;
+        color: var(--slate-light);
+    }
+    
+    /* Contact Info */
+    .contact-info {
+        background: #F8F9FA;
+        border-radius: 16px;
+        padding: 1rem;
+        margin-top: 0.5rem;
+    }
+    
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem;
+    }
+    
+    .contact-item i {
+        width: 25px;
+        color: var(--primary);
+    }
+    
+    /* Commitment Box */
+    .commitment-box {
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFF2E6 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .commitment-icon i {
+        font-size: 2.5rem;
+        color: var(--primary);
+    }
+    
+    .commitment-text {
+        flex: 1;
+    }
+    
+    .commitment-text p {
+        margin-bottom: 0;
+        color: var(--slate);
+    }
+    
+    /* Privacy Footer */
+    .privacy-footer {
+        background: #FFFCF8;
+        padding: 1.5rem;
+        border-top: 1px solid rgba(230,126,34,0.1);
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .privacy-body {
+            padding: 1.25rem;
+        }
+        
+        .privacy-section {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .section-number {
+            margin-bottom: 0.5rem;
+        }
+        
+        .quick-nav-links {
+            justify-content: center;
+        }
+        
+        .info-grid, .uses-list, .security-grid, .cookies-list, .rights-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .commitment-box {
+            flex-direction: column;
+        }
+        
+        .privacy-footer {
+            flex-direction: column;
+        }
+        
+        .privacy-footer .btn {
+            width: 100%;
+        }
+        
+        .trust-badge {
+            text-align: center;
+            flex-direction: column;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .privacy-card {
+        animation: fadeInUp 0.4s ease forwards;
+    }
+    
+    .privacy-section {
+        animation: fadeInUp 0.3s ease forwards;
+        animation-delay: calc(var(--index, 0) * 0.05s);
+    }
+</style>
+{% endblock %}

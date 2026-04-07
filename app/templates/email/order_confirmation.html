@@ -1,0 +1,52 @@
+{% extends "email/base_email.html" %}
+
+{% block content %}
+<h2 style="color: #333; margin-bottom: 20px;">Order Confirmed! 🎉</h2>
+
+<p>Dear <strong>{{ username }}</strong>,</p>
+
+<p>Thank you for your order! Your order has been successfully placed and is now being processed.</p>
+
+<div class="order-details">
+    <h3 style="margin-top: 0;">📋 Order Details</h3>
+    <p><strong>Order Number:</strong> #{{ order_id }}</p>
+    <p><strong>Order Date:</strong> {{ order_date }}</p>
+    <p><strong>Payment Method:</strong> Cash on Delivery / Card</p>
+    <p><strong>Order Status:</strong> <span class="badge badge-success">Confirmed</span></p>
+</div>
+
+<div class="order-details">
+    <h3 style="margin-top: 0;">🛍️ Items Ordered</h3>
+    {% for item in items %}
+    <div class="product-item">
+        <strong>{{ item.name }}</strong> x {{ item.quantity }} = <strong>${{ item.subtotal }}</strong>
+    </div>
+    {% endfor %}
+    <hr>
+    <div style="text-align: right;">
+        <strong>Total Amount: ${{ total_amount }}</strong>
+    </div>
+</div>
+
+<div class="order-details">
+    <h3 style="margin-top: 0;">🚚 Shipping Information</h3>
+    <p><strong>Shipping Address:</strong><br>{{ shipping_address }}</p>
+    <p><strong>Estimated Delivery:</strong> {{ estimated_delivery }}</p>
+</div>
+
+<div style="text-align: center;">
+    <a href="{{ track_url }}" class="button">📦 Track My Order</a>
+</div>
+
+<hr>
+
+<div class="info-box">
+    <h3 style="margin-top: 0;">💡 Need Help?</h3>
+    <p>• Track your order: <a href="{{ track_url }}">Click here</a></p>
+    <p>• Contact support: support@awwalinvestment.com</p>
+    <p>• Call us: +234 123 456 7890</p>
+</div>
+
+<p>Best regards,<br>
+<strong>The Awwal Investment Team</strong></p>
+{% endblock %}

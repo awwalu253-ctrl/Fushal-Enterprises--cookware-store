@@ -1,0 +1,672 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                <i class="fas fa-question-circle me-2" style="color: var(--primary);"></i>
+                Frequently Asked <span style="color: var(--primary);">Questions</span>
+            </h1>
+            <p class="text-muted mt-2 mb-0">Find answers to common questions about our products and services</p>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-4 mb-4">
+            <div class="faq-sidebar">
+                <div class="sidebar-header">
+                    <i class="fas fa-list me-2"></i>
+                    <span>Browse by Topic</span>
+                </div>
+                <div class="sidebar-nav">
+                    <a href="#ordering" class="sidebar-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Ordering</span>
+                        <i class="fas fa-chevron-right ms-auto"></i>
+                    </a>
+                    <a href="#payment" class="sidebar-link">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Payment</span>
+                        <i class="fas fa-chevron-right ms-auto"></i>
+                    </a>
+                    <a href="#shipping" class="sidebar-link">
+                        <i class="fas fa-truck"></i>
+                        <span>Shipping & Delivery</span>
+                        <i class="fas fa-chevron-right ms-auto"></i>
+                    </a>
+                    <a href="#returns" class="sidebar-link">
+                        <i class="fas fa-undo-alt"></i>
+                        <span>Returns & Refunds</span>
+                        <i class="fas fa-chevron-right ms-auto"></i>
+                    </a>
+                    <a href="#products" class="sidebar-link">
+                        <i class="fas fa-box"></i>
+                        <span>Products</span>
+                        <i class="fas fa-chevron-right ms-auto"></i>
+                    </a>
+                    <a href="#account" class="sidebar-link">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Account</span>
+                        <i class="fas fa-chevron-right ms-auto"></i>
+                    </a>
+                </div>
+                
+                <!-- Contact Support Card -->
+                <div class="support-card mt-4">
+                    <div class="support-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h6>Still have questions?</h6>
+                    <p class="small">Our support team is here to help you</p>
+                    <a href="#" class="btn btn-primary-custom btn-sm">Contact Support</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FAQ Content -->
+        <div class="col-lg-8">
+            <!-- Ordering Section -->
+            <div id="ordering" class="faq-section">
+                <div class="section-title">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h3>Ordering</h3>
+                </div>
+                <div class="accordion" id="orderingAccordion">
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom" data-bs-toggle="collapse" data-bs-target="#q1">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>How do I place an order?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q1" class="accordion-collapse-custom collapse show">
+                            <div class="accordion-body-custom">
+                                <p>Simply browse our products, add items to your cart, and proceed to checkout. You'll need to create an account or login to complete your purchase. Follow these steps:</p>
+                                <ol>
+                                    <li>Browse products and click "Add to Cart"</li>
+                                    <li>Review your cart and click "Proceed to Checkout"</li>
+                                    <li>Enter your shipping information</li>
+                                    <li>Choose payment method</li>
+                                    <li>Confirm and place your order</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom collapsed" data-bs-toggle="collapse" data-bs-target="#q2">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>Can I modify my order after placing it?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q2" class="accordion-collapse-custom collapse">
+                            <div class="accordion-body-custom">
+                                <p>You can modify your order within 30 minutes of placing it. Contact our support team immediately at <strong>support@awwalinvestment.com</strong> or call <strong>+234 123 456 7890</strong> for assistance. After 30 minutes, orders enter processing and cannot be modified.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom collapsed" data-bs-toggle="collapse" data-bs-target="#q3">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>How can I track my order?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q3" class="accordion-collapse-custom collapse">
+                            <div class="accordion-body-custom">
+                                <p>Once your order ships, you'll receive a confirmation email with a tracking number. You can also track your order by logging into your account and visiting "My Orders". Click on the order number to view detailed tracking information.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Section -->
+            <div id="payment" class="faq-section">
+                <div class="section-title">
+                    <i class="fas fa-credit-card"></i>
+                    <h3>Payment</h3>
+                </div>
+                <div class="accordion" id="paymentAccordion">
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom" data-bs-toggle="collapse" data-bs-target="#q4">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>What payment methods do you accept?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q4" class="accordion-collapse-custom collapse show">
+                            <div class="accordion-body-custom">
+                                <p>We accept multiple payment methods for your convenience:</p>
+                                <div class="payment-methods">
+                                    <span class="payment-badge"><i class="fab fa-cc-visa"></i> Visa</span>
+                                    <span class="payment-badge"><i class="fab fa-cc-mastercard"></i> Mastercard</span>
+                                    <span class="payment-badge"><i class="fab fa-cc-paypal"></i> PayPal</span>
+                                    <span class="payment-badge"><i class="fas fa-university"></i> Bank Transfer</span>
+                                    <span class="payment-badge"><i class="fas fa-money-bill"></i> Cash on Delivery</span>
+                                </div>
+                                <p class="mt-2"><small class="text-muted">Note: Cash on Delivery is only available within Lagos.</small></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom collapsed" data-bs-toggle="collapse" data-bs-target="#q5">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>Is my payment information secure?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q5" class="accordion-collapse-custom collapse">
+                            <div class="accordion-body-custom">
+                                <p>Yes! We use industry-standard SSL encryption to protect your payment information. We never store your full credit card details on our servers. All transactions are processed through secure payment gateways.</p>
+                                <div class="security-icons">
+                                    <i class="fas fa-lock"></i> SSL Secure
+                                    <i class="fas fa-shield-alt"></i> PCI Compliant
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shipping Section -->
+            <div id="shipping" class="faq-section">
+                <div class="section-title">
+                    <i class="fas fa-truck"></i>
+                    <h3>Shipping & Delivery</h3>
+                </div>
+                <div class="accordion" id="shippingAccordion">
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom" data-bs-toggle="collapse" data-bs-target="#q6">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>How long does shipping take?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q6" class="accordion-collapse-custom collapse show">
+                            <div class="accordion-body-custom">
+                                <p>Delivery times vary based on your location:</p>
+                                <ul>
+                                    <li><strong>Lagos:</strong> 1-2 business days</li>
+                                    <li><strong>Other Nigerian cities:</strong> 3-5 business days</li>
+                                    <li><strong>International:</strong> 7-14 business days</li>
+                                </ul>
+                                <p>You'll receive a tracking number once your order ships.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom collapsed" data-bs-toggle="collapse" data-bs-target="#q7">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>Do you offer free shipping?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q7" class="accordion-collapse-custom collapse">
+                            <div class="accordion-body-custom">
+                                <p>Yes! We offer free standard shipping on all orders over $50 (or ₦50,000). For orders below this amount, shipping fees are calculated at checkout based on your location.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Returns Section -->
+            <div id="returns" class="faq-section">
+                <div class="section-title">
+                    <i class="fas fa-undo-alt"></i>
+                    <h3>Returns & Refunds</h3>
+                </div>
+                <div class="accordion" id="returnsAccordion">
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom" data-bs-toggle="collapse" data-bs-target="#q8">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>What is your return policy?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q8" class="accordion-collapse-custom collapse show">
+                            <div class="accordion-body-custom">
+                                <p>We offer a <strong>30-day return policy</strong> for unused items in original packaging. To be eligible for a return:</p>
+                                <ul>
+                                    <li>Items must be unused and in original condition</li>
+                                    <li>Original packaging must be intact</li>
+                                    <li>Proof of purchase is required</li>
+                                </ul>
+                                <p>Contact our support team to initiate a return.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom collapsed" data-bs-toggle="collapse" data-bs-target="#q9">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>How long do refunds take?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q9" class="accordion-collapse-custom collapse">
+                            <div class="accordion-body-custom">
+                                <p>Refunds are processed within <strong>7-14 business days</strong> after we receive and inspect your returned item. The refund will be credited to your original payment method. You'll receive an email confirmation once the refund is processed.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products Section -->
+            <div id="products" class="faq-section">
+                <div class="section-title">
+                    <i class="fas fa-box"></i>
+                    <h3>Products</h3>
+                </div>
+                <div class="accordion" id="productsAccordion">
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom" data-bs-toggle="collapse" data-bs-target="#q10">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>Are your products authentic?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q10" class="accordion-collapse-custom collapse show">
+                            <div class="accordion-body-custom">
+                                <p>Absolutely! All our products are 100% authentic and sourced directly from trusted manufacturers. We stand behind the quality of every item we sell.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom collapsed" data-bs-toggle="collapse" data-bs-target="#q11">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>Do you offer product warranties?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q11" class="accordion-collapse-custom collapse">
+                            <div class="accordion-body-custom">
+                                <p>Yes! Most of our products come with a manufacturer's warranty. Warranty periods vary by product. Check the product description for specific warranty information or contact our support team for details.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account Section -->
+            <div id="account" class="faq-section">
+                <div class="section-title">
+                    <i class="fas fa-user-circle"></i>
+                    <h3>Account</h3>
+                </div>
+                <div class="accordion" id="accountAccordion">
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom" data-bs-toggle="collapse" data-bs-target="#q12">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>How do I create an account?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q12" class="accordion-collapse-custom collapse show">
+                            <div class="accordion-body-custom">
+                                <p>Click the "Sign Up" button at the top of the page. Fill in your name, email address, and create a password. You'll receive a verification email to confirm your account. Once verified, you can start shopping!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item-custom">
+                        <div class="accordion-header-custom collapsed" data-bs-toggle="collapse" data-bs-target="#q13">
+                            <div class="accordion-question">
+                                <i class="fas fa-question-circle"></i>
+                                <span>I forgot my password. What should I do?</span>
+                            </div>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div id="q13" class="accordion-collapse-custom collapse">
+                            <div class="accordion-body-custom">
+                                <p>Click the "Login" button, then select "Forgot Password". Enter your email address, and we'll send you a password reset link. Follow the instructions in the email to create a new password.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Still Need Help -->
+            <div class="help-box mt-4">
+                <div class="help-content">
+                    <i class="fas fa-headset fa-2x mb-2"></i>
+                    <h5>Still Need Help?</h5>
+                    <p>Can't find the answer you're looking for? Our support team is ready to assist you.</p>
+                    <div class="help-buttons">
+                        <a href="mailto:support@awwalinvestment.com" class="btn btn-outline-custom">
+                            <i class="fas fa-envelope me-2"></i> Email Support
+                        </a>
+                        <a href="#" class="btn btn-primary-custom">
+                            <i class="fas fa-comments me-2"></i> Live Chat
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* FAQ Sidebar */
+    .faq-sidebar {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        position: sticky;
+        top: 100px;
+    }
+    
+    .sidebar-header {
+        font-size: 1.1rem;
+        font-weight: 700;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        margin-bottom: 1rem;
+    }
+    
+    .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--slate);
+        transition: all 0.2s;
+    }
+    
+    .sidebar-link:hover {
+        background: #FEF3E4;
+        transform: translateX(5px);
+    }
+    
+    .sidebar-link i:first-child {
+        width: 24px;
+        color: var(--primary);
+    }
+    
+    /* Support Card */
+    .support-card {
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFF2E6 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid rgba(230,126,34,0.2);
+        margin-top: 1rem;
+    }
+    
+    .support-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--btn-grad);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    /* FAQ Sections */
+    .faq-section {
+        margin-bottom: 2rem;
+    }
+    
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid rgba(230,126,34,0.2);
+    }
+    
+    .section-title i {
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+    
+    .section-title h3 {
+        margin-bottom: 0;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+    }
+    
+    /* Accordion Custom */
+    .accordion-item-custom {
+        border: 1px solid rgba(230,126,34,0.1);
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    
+    .accordion-header-custom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.25rem;
+        background: #FFFCF8;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .accordion-header-custom:hover {
+        background: #FEF3E4;
+    }
+    
+    .accordion-question {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .accordion-question i {
+        color: var(--primary);
+    }
+    
+    .accordion-icon {
+        transition: transform 0.2s;
+        color: var(--primary);
+    }
+    
+    .accordion-header-custom.collapsed .accordion-icon {
+        transform: rotate(-90deg);
+    }
+    
+    .accordion-collapse-custom {
+        transition: all 0.2s;
+    }
+    
+    .accordion-body-custom {
+        padding: 1.25rem;
+        border-top: 1px solid rgba(230,126,34,0.1);
+        background: white;
+        line-height: 1.6;
+    }
+    
+    .accordion-body-custom ul, .accordion-body-custom ol {
+        padding-left: 1.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .accordion-body-custom li {
+        margin-bottom: 0.25rem;
+    }
+    
+    /* Payment Methods */
+    .payment-methods {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    .payment-badge {
+        background: #FEF3E4;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        color: var(--primary-dark);
+    }
+    
+    /* Security Icons */
+    .security-icons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .security-icons i {
+        color: var(--primary);
+        margin-right: 0.25rem;
+    }
+    
+    /* Help Box */
+    .help-box {
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFF2E6 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        border: 1px solid rgba(230,126,34,0.2);
+        margin-top: 2rem;
+    }
+    
+    .help-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .faq-sidebar {
+            position: static;
+            margin-bottom: 1rem;
+        }
+        
+        .help-buttons {
+            flex-direction: column;
+        }
+        
+        .help-buttons .btn {
+            width: 100%;
+        }
+        
+        .section-title h3 {
+            font-size: 1.2rem;
+        }
+        
+        .accordion-header-custom {
+            padding: 0.875rem 1rem;
+        }
+        
+        .accordion-question {
+            font-size: 0.9rem;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .faq-sidebar, .faq-section {
+        animation: fadeInUp 0.4s ease forwards;
+    }
+    
+    .faq-section:nth-child(1) { animation-delay: 0.05s; }
+    .faq-section:nth-child(2) { animation-delay: 0.1s; }
+    .faq-section:nth-child(3) { animation-delay: 0.15s; }
+    .faq-section:nth-child(4) { animation-delay: 0.2s; }
+    .faq-section:nth-child(5) { animation-delay: 0.25s; }
+    .faq-section:nth-child(6) { animation-delay: 0.3s; }
+</style>
+
+<script>
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Highlight active section on scroll
+    const sections = document.querySelectorAll('.faq-section');
+    const navLinks = document.querySelectorAll('.sidebar-link');
+    
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            if (pageYOffset >= sectionTop - 150) {
+                current = section.getAttribute('id');
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            const href = link.getAttribute('href').substring(1);
+            if (href === current) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

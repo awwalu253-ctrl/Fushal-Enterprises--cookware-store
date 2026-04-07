@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Search Results for: "{{ query }}"</h2>
+            
+            {% if products %}
+                <div class="row product-grid">
+                    {% for product in products %}
+                    <div class="col-md-3 mb-4">
+                        <div class="product-card" onclick="window.location.href='/product/{{ product.id }}'">
+                            <div class="product-image">
+                                <img src="{{ product.image_url or 'https://via.placeholder.com/300x300?text=No+Image' }}" alt="{{ product.name }}">
+                            </div>
+                            <div class="product-details">
+                                <h5 class="product-title">{{ product.name }}</h5>
+                                <p class="product-price">${{ "%.2f"|format(product.price) }}</p>
+                                <button class="add-to-cart-btn" onclick="event.stopPropagation(); window.location.href='/cart/add/{{ product.id }}'">
+                                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-4x mb-3" style="color: #E67E22; opacity: 0.5;"></i>
+                    <h3>No products found</h3>
+                    <p class="text-muted">We couldn't find any products matching "{{ query }}"</p>
+                    <a href="{{ url_for('main.all_products') }}" class="btn btn-primary-custom mt-3">
+                        Browse All Products
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

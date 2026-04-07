@@ -1,0 +1,38 @@
+{% extends "email/base_email.html" %}
+
+{% block content %}
+<h2 style="color: #333; margin-bottom: 20px;">New Product Alert! 🎉</h2>
+
+<p>Dear <strong>{{ username }}</strong>,</p>
+
+<p>Check out our newest addition to the Awwal Investment collection!</p>
+
+<div style="background-color: #f8f9fa; border-radius: 10px; padding: 20px; margin: 20px 0; text-align: center;">
+    <img src="{{ product_image }}" alt="{{ product_name }}" style="max-width: 200px; border-radius: 10px; margin-bottom: 15px;">
+    <h3 style="color: #667eea; margin: 10px 0;">{{ product_name }}</h3>
+    <p style="color: #666;">{{ product_description[:150] }}...</p>
+    <p><strong style="font-size: 20px; color: #667eea;">${{ product_price }}</strong></p>
+    <a href="{{ product_url }}" class="button">🛒 Shop Now</a>
+</div>
+
+<div class="info-box">
+    <h3 style="margin-top: 0;">✨ Why You'll Love It:</h3>
+    <ul style="padding-left: 20px;">
+        <li>Premium quality materials</li>
+        <li>Professional grade</li>
+        <li>Easy to clean and maintain</li>
+        <li>Durable and long-lasting</li>
+    </ul>
+</div>
+
+<div style="text-align: center;">
+    <a href="{{ shop_url }}" class="button">Browse All New Arrivals</a>
+</div>
+
+<hr>
+
+<p>Don't miss out on our latest products! Visit our store today.</p>
+
+<p>Best regards,<br>
+<strong>The Awwal Investment Team</strong></p>
+{% endblock %}

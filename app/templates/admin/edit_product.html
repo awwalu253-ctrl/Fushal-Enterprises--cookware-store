@@ -1,0 +1,434 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-edit me-2" style="color: var(--primary);"></i>
+                    Edit <span style="color: var(--primary);">Product</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" style="color: var(--primary);">Admin</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.products') }}" style="color: var(--primary);">Products</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Edit Product</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-box me-1"></i> Product ID: #{{ product.id }}
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="form-card">
+                <div class="card-header-custom">
+                    <div>
+                        <i class="fas fa-edit me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Edit Product: {{ product.name }}</h5>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <form method="POST" enctype="multipart/form-data" id="editProductForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Product Name -->
+                                <div class="form-group mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-tag me-2" style="color: var(--primary);"></i>Product Name
+                                    </label>
+                                    {{ form.name(class="form-control form-control-lg", placeholder="Enter product name") }}
+                                    {% if form.name.errors %}
+                                        {% for error in form.name.errors %}
+                                            <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Description -->
+                                <div class="form-group mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-align-left me-2" style="color: var(--primary);"></i>Description
+                                    </label>
+                                    {{ form.description(class="form-control", rows=6, placeholder="Enter product description") }}
+                                    {% if form.description.errors %}
+                                        {% for error in form.description.errors %}
+                                            <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <!-- Price -->
+                                        <div class="form-group mb-4">
+                                            <label class="form-label fw-semibold">
+                                                <i class="fas fa-dollar-sign me-2" style="color: var(--primary);"></i>Price
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text currency-symbol">$</span>
+                                                {{ form.price(class="form-control", placeholder="0.00", step="0.01") }}
+                                            </div>
+                                            {% if form.price.errors %}
+                                                {% for error in form.price.errors %}
+                                                    <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <!-- Stock -->
+                                        <div class="form-group mb-4">
+                                            <label class="form-label fw-semibold">
+                                                <i class="fas fa-boxes me-2" style="color: var(--primary);"></i>Stock Quantity
+                                            </label>
+                                            {{ form.stock(class="form-control", placeholder="Quantity in stock") }}
+                                            {% if form.stock.errors %}
+                                                {% for error in form.stock.errors %}
+                                                    <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Category -->
+                                <div class="form-group mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-folder me-2" style="color: var(--primary);"></i>Category
+                                    </label>
+                                    {{ form.category(class="form-select") }}
+                                    {% if form.category.errors %}
+                                        {% for error in form.category.errors %}
+                                            <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Image URL -->
+                                <div class="form-group mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-image me-2" style="color: var(--primary);"></i>Image URL
+                                    </label>
+                                    {{ form.image_url(class="form-control", id="image_url", placeholder="https://example.com/product-image.jpg") }}
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-info-circle me-1"></i> Current image: 
+                                        {% if product.image_url %}
+                                            <a href="{{ product.image_url }}" target="_blank" style="color: var(--primary);">View current image</a>
+                                        {% else %}
+                                            No image set
+                                        {% endif %}
+                                    </small>
+                                    {% if form.image_url.errors %}
+                                        {% for error in form.image_url.errors %}
+                                            <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <!-- Current Image Display -->
+                                <div class="info-card mb-4">
+                                    <div class="info-card-header">
+                                        <i class="fas fa-image me-2" style="color: var(--primary);"></i>
+                                        <span class="fw-semibold">Current Image</span>
+                                    </div>
+                                    <div class="info-card-body text-center">
+                                        {% if product.image_url %}
+                                            <img src="{{ product.image_url }}" class="current-image" alt="{{ product.name }}" 
+                                                 onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Invalid+Image';">
+                                        {% else %}
+                                            <div class="no-image-placeholder">
+                                                <i class="fas fa-image fa-4x text-muted"></i>
+                                                <p class="text-muted mt-2 mb-0">No image set</p>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Image Preview -->
+                                <div class="info-card">
+                                    <div class="info-card-header">
+                                        <i class="fas fa-eye me-2" style="color: var(--primary);"></i>
+                                        <span class="fw-semibold">New Image Preview</span>
+                                    </div>
+                                    <div class="info-card-body text-center" id="image-preview">
+                                        <div class="preview-placeholder">
+                                            <i class="fas fa-image fa-4x text-muted"></i>
+                                            <p class="text-muted mt-2 mb-0">Enter a new image URL above to see preview</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Warning Note -->
+                        <div class="alert-note mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> Leave the image URL blank to keep the current image.
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="form-actions mt-4">
+                            <a href="{{ url_for('admin.products') }}" class="btn btn-outline-custom">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary-custom">
+                                <i class="fas fa-save me-2"></i> Update Product
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Form Card */
+    .form-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .card-header-custom {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        background: #FFFCF8;
+    }
+    
+    .card-body-custom {
+        padding: 2rem;
+    }
+    
+    /* Form Controls */
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 1px solid rgba(230,126,34,0.2);
+        padding: 0.75rem 1rem;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(230,126,34,0.1);
+    }
+    
+    .form-control-lg {
+        font-size: 1rem;
+    }
+    
+    .currency-symbol {
+        background: #FEF3E4;
+        border: 1px solid rgba(230,126,34,0.2);
+        border-right: none;
+        color: var(--primary);
+        font-weight: 600;
+    }
+    
+    /* Info Card */
+    .info-card {
+        background: #FEFEFE;
+        border-radius: 16px;
+        border: 1px solid rgba(230,126,34,0.1);
+        overflow: hidden;
+    }
+    
+    .info-card-header {
+        padding: 0.75rem 1rem;
+        background: #FFFCF8;
+        border-bottom: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .info-card-body {
+        padding: 1.5rem;
+    }
+    
+    .current-image {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 12px;
+        object-fit: cover;
+    }
+    
+    .no-image-placeholder {
+        padding: 2rem;
+        background: #FDF4E8;
+        border-radius: 12px;
+    }
+    
+    .preview-placeholder {
+        padding: 2rem;
+        background: #FDF4E8;
+        border-radius: 12px;
+    }
+    
+    /* Alert Note */
+    .alert-note {
+        background: #FEF3E4;
+        border-left: 4px solid var(--primary);
+        padding: 1rem;
+        border-radius: 12px;
+        color: var(--slate);
+        font-size: 0.9rem;
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .card-body-custom {
+            padding: 1.25rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-actions .btn {
+            width: 100%;
+        }
+        
+        .info-card {
+            margin-top: 1rem;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-card {
+        animation: fadeIn 0.4s ease forwards;
+    }
+    
+    /* Loading State for Submit Button */
+    .btn-primary-custom.loading {
+        opacity: 0.7;
+        cursor: wait;
+    }
+    
+    .btn-primary-custom.loading i {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+    // Image preview functionality
+    const imageUrlInput = document.getElementById('image_url');
+    const imagePreview = document.getElementById('image-preview');
+    
+    if (imageUrlInput && imagePreview) {
+        imageUrlInput.addEventListener('input', function() {
+            const url = this.value.trim();
+            if (url) {
+                imagePreview.innerHTML = `
+                    <div class="text-center">
+                        <img src="${escapeHtml(url)}" class="current-image" style="max-height: 200px;" 
+                             onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Invalid+Image';">
+                    </div>
+                `;
+            } else {
+                imagePreview.innerHTML = `
+                    <div class="preview-placeholder">
+                        <i class="fas fa-image fa-4x text-muted"></i>
+                        <p class="text-muted mt-2 mb-0">Enter a new image URL above to see preview</p>
+                    </div>
+                `;
+            }
+        });
+    }
+    
+    // Form submission with loading state
+    const form = document.getElementById('editProductForm');
+    const submitBtn = form?.querySelector('button[type="submit"]');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function() {
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse me-2"></i> Updating...';
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        });
+    }
+    
+    // Helper function to escape HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // Validate stock input
+    const stockInput = document.getElementById('stock');
+    if (stockInput) {
+        stockInput.addEventListener('input', function() {
+            let value = parseInt(this.value);
+            if (isNaN(value)) value = 0;
+            if (value < 0) this.value = 0;
+            if (value < 10 && value > 0) {
+                this.style.borderColor = '#ffc107';
+            } else if (value === 0) {
+                this.style.borderColor = '#dc3545';
+            } else {
+                this.style.borderColor = '#28a745';
+            }
+        });
+    }
+    
+    // Validate price input
+    const priceInput = document.getElementById('price');
+    if (priceInput) {
+        priceInput.addEventListener('input', function() {
+            let value = parseFloat(this.value);
+            if (isNaN(value)) value = 0;
+            if (value < 0) this.value = 0;
+            this.value = value.toFixed(2);
+        });
+    }
+</script>
+{% endblock %}

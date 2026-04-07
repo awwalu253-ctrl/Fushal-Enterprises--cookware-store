@@ -1,0 +1,476 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-folder-tree me-2" style="color: var(--primary);"></i>
+                    Manage <span style="color: var(--primary);">Categories</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" style="color: var(--primary);">Admin</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Categories</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-tags me-1"></i> {{ categories|length }} Categories Total
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <!-- Action Bar -->
+    <div class="action-bar mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <a href="{{ url_for('admin.add_category') }}" class="btn btn-primary-custom">
+                <i class="fas fa-plus-circle me-2"></i> Add New Category
+            </a>
+            <div class="d-flex gap-2">
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchCategory" placeholder="Search categories..." class="search-input">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Table -->
+    <div class="categories-table-container">
+        <div class="table-responsive">
+            <table class="categories-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Category Icon</th>
+                        <th>Category Name</th>
+                        <th>Slug</th>
+                        <th>Product Count</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="categoriesTableBody">
+                    {% for category in categories %}
+                    <tr class="category-row" data-name="{{ category.name.lower() }}">
+                        <td data-label="ID">
+                            <span class="category-id">#{{ category.id }}</span>
+                        </td>
+                        <td data-label="Icon">
+                            <div class="category-icon">
+                                <i class="fas {{ category.icon or 'fa-folder' }}"></i>
+                            </div>
+                        </td>
+                        <td data-label="Category Name">
+                            <div class="category-name-cell">
+                                <strong>{{ category.name }}</strong>
+                                {% if category.description %}
+                                <div class="category-description">{{ category.description[:50] }}{% if category.description|length > 50 %}...{% endif %}</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td data-label="Slug">
+                            <code class="category-slug">{{ category.slug or category.name|lower|replace(' ', '-') }}</code>
+                        </td>
+                        <td data-label="Product Count">
+                            <span class="product-count-badge">
+                                <i class="fas fa-box me-1"></i> {{ category.product_count }} products
+                            </span>
+                        </td>
+                        <td data-label="Status">
+                            {% if category.is_active %}
+                            <span class="status-badge active">
+                                <i class="fas fa-check-circle me-1"></i> Active
+                            </span>
+                            {% else %}
+                            <span class="status-badge inactive">
+                                <i class="fas fa-times-circle me-1"></i> Inactive
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Actions">
+                            <div class="action-buttons">
+                                <a href="{{ url_for('admin.edit_category', id=category.id) }}" class="btn-icon edit" title="Edit Category">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn-icon delete" onclick="confirmDelete({{ category.id }}, '{{ category.name|replace("'", "\\'") }}')" title="Delete Category">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <a href="{{ url_for('main.all_products', category=category.name) }}" class="btn-icon view" target="_blank" title="View Products">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    {% if not categories %}
+    <div class="empty-state text-center py-5">
+        <div class="empty-state-icon mb-4">
+            <i class="fas fa-folder-open fa-5x" style="color: var(--primary); opacity: 0.5;"></i>
+        </div>
+        <h3 class="mb-3">No Categories Yet</h3>
+        <p class="text-muted mb-4">Get started by adding your first product category.</p>
+        <a href="{{ url_for('admin.add_category') }}" class="btn btn-primary-custom">
+            <i class="fas fa-plus-circle me-2"></i> Add New Category
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Delete Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #dc3545;"></i>
+                <p class="mb-0">Are you sure you want to delete category <strong id="deleteCategoryName"></strong>?</p>
+                <small class="text-muted">This action cannot be undone. Products in this category will become uncategorized.</small>
+            </div>
+            <div class="modal-footer border-0 justify-content-center gap-3">
+                <button type="button" class="btn btn-outline-custom px-4" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger px-4">Delete Category</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Action Bar */
+    .action-bar {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 20px;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .search-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #FEF3E4;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(230,126,34,0.2);
+    }
+    
+    .search-wrapper i {
+        color: var(--primary);
+    }
+    
+    .search-input {
+        border: none;
+        background: transparent;
+        outline: none;
+        width: 200px;
+        font-size: 0.9rem;
+    }
+    
+    /* Categories Table */
+    .categories-table-container {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .categories-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .categories-table th {
+        padding: 1rem 1rem;
+        background: #FFFCF8;
+        font-weight: 600;
+        color: var(--slate);
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        font-size: 0.85rem;
+    }
+    
+    .categories-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(230,126,34,0.08);
+        vertical-align: middle;
+    }
+    
+    .categories-table tr:hover {
+        background: rgba(230,126,34,0.02);
+    }
+    
+    .category-id {
+        font-weight: 700;
+        color: var(--primary);
+        font-family: monospace;
+    }
+    
+    /* Category Icon */
+    .category-icon {
+        width: 40px;
+        height: 40px;
+        background: #FEF3E4;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: var(--primary);
+    }
+    
+    /* Category Name Cell */
+    .category-name-cell {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .category-description {
+        font-size: 0.7rem;
+        color: var(--slate-light);
+        margin-top: 0.25rem;
+    }
+    
+    /* Category Slug */
+    .category-slug {
+        background: #F5F0E8;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        color: var(--slate);
+    }
+    
+    /* Product Count Badge */
+    .product-count-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        background: #E3F2FD;
+        color: #1565C0;
+    }
+    
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.active {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .status-badge.inactive {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-icon.edit {
+        background: #FEF3E4;
+        color: var(--primary);
+    }
+    
+    .btn-icon.edit:hover {
+        background: var(--primary);
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .btn-icon.delete {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    .btn-icon.delete:hover {
+        background: #C62828;
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .btn-icon.view {
+        background: #E3F2FD;
+        color: #1565C0;
+    }
+    
+    .btn-icon.view:hover {
+        background: #1565C0;
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        background: white;
+        border-radius: 28px;
+        padding: 3rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    /* Responsive Table */
+    @media (max-width: 768px) {
+        .categories-table thead {
+            display: none;
+        }
+        
+        .categories-table tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(230,126,34,0.1);
+            border-radius: 16px;
+            padding: 1rem;
+        }
+        
+        .categories-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed rgba(230,126,34,0.08);
+        }
+        
+        .categories-table td:last-child {
+            border-bottom: none;
+        }
+        
+        .categories-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--slate-light);
+            width: 40%;
+        }
+        
+        .action-buttons {
+            justify-content: flex-end;
+        }
+        
+        .search-wrapper {
+            width: 100%;
+        }
+        
+        .search-input {
+            width: 100%;
+        }
+        
+        .action-bar .d-flex {
+            width: 100%;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .category-row {
+        animation: fadeInUp 0.3s ease forwards;
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+</style>
+
+<script>
+    // Search functionality
+    const searchInput = document.getElementById('searchCategory');
+    const rows = document.querySelectorAll('.category-row');
+    
+    function filterCategories() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        
+        rows.forEach(row => {
+            const categoryName = row.dataset.name || '';
+            
+            if (categoryName.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('keyup', filterCategories);
+    }
+    
+    // Delete confirmation
+    function confirmDelete(categoryId, categoryName) {
+        const nameSpan = document.getElementById('deleteCategoryName');
+        if (nameSpan) {
+            nameSpan.textContent = categoryName;
+        }
+        const deleteBtn = document.getElementById('confirmDeleteBtn');
+        if (deleteBtn) {
+            deleteBtn.href = "{{ url_for('admin.delete_category', id=0) }}".replace('0', categoryId);
+        }
+        const modalElement = document.getElementById('deleteModal');
+        if (modalElement) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        }
+    }
+    
+    // Add visual feedback for product count
+    document.querySelectorAll('.product-count-badge').forEach(badge => {
+        const count = parseInt(badge.textContent);
+        if (count === 0) {
+            badge.style.background = '#F5F5F5';
+            badge.style.color = '#999';
+        } else if (count > 50) {
+            badge.style.background = '#E8F5E9';
+            badge.style.color = '#2E7D32';
+        }
+    });
+</script>
+{% endblock %}

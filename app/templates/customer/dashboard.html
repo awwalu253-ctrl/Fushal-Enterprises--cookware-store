@@ -1,0 +1,515 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    My <span style="color: var(--primary);">Dashboard</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}" style="color: var(--primary);">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-user-circle me-1"></i> {{ current_user.username }}
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <!-- Welcome Section -->
+    <div class="welcome-card mb-4 p-4 rounded-4" style="background: linear-gradient(135deg, #FFF8F0 0%, #FFF2E6 100%); border: 1px solid rgba(230,126,34,0.2);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h2 class="mb-2" style="font-family: 'Playfair Display', serif;">
+                    Welcome back, <span style="color: var(--primary);">{{ current_user.username }}</span>!
+                </h2>
+                <p class="text-muted mb-0">Here's what's happening with your account today.</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <a href="{{ url_for('customer.profile') }}" class="btn btn-outline-custom">
+                    <i class="fas fa-user-edit me-2"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card text-center p-3 rounded-4">
+                <div class="stat-icon mb-2">
+                    <i class="fas fa-shopping-bag fa-2x" style="color: var(--primary);"></i>
+                </div>
+                <h3 class="fw-bold mb-0">{{ total_orders|default(0) }}</h3>
+                <p class="text-muted small mb-0">Total Orders</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card text-center p-3 rounded-4">
+                <div class="stat-icon mb-2">
+                    <i class="fas fa-dollar-sign fa-2x" style="color: var(--secondary);"></i>
+                </div>
+                <h3 class="fw-bold mb-0">${{ "%.2f"|format(total_spent|default(0)) }}</h3>
+                <p class="text-muted small mb-0">Total Spent</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card text-center p-3 rounded-4">
+                <div class="stat-icon mb-2">
+                    <i class="fas fa-truck fa-2x" style="color: var(--accent);"></i>
+                </div>
+                <h3 class="fw-bold mb-0">{{ pending_orders|default(0) }}</h3>
+                <p class="text-muted small mb-0">Pending Delivery</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card text-center p-3 rounded-4">
+                <div class="stat-icon mb-2">
+                    <i class="fas fa-heart fa-2x text-danger"></i>
+                </div>
+                <h3 class="fw-bold mb-0">{{ wishlist_count|default(0) }}</h3>
+                <p class="text-muted small mb-0">Wishlist Items</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent Orders Section -->
+        <div class="col-lg-8">
+            <div class="dashboard-card">
+                <div class="card-header-custom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-clock me-2" style="color: var(--primary);"></i>
+                            <h5 class="mb-0 fw-bold">Recent Orders</h5>
+                        </div>
+                        <a href="{{ url_for('customer.orders') }}" class="btn btn-sm btn-outline-custom">
+                            View All <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    {% if recent_orders %}
+                    <div class="table-responsive">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Items</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td data-label="Order ID">
+                                        <span class="order-id">#{{ order.id }}</span>
+                                    </td>
+                                    <td data-label="Date">
+                                        <div class="order-date">
+                                            <i class="far fa-calendar-alt me-1" style="color: var(--primary);"></i>
+                                            {{ order.order_date.strftime('%b %d, %Y') }}
+                                        </div>
+                                    </td>
+                                    <td data-label="Items">
+                                        <span class="items-count">{{ order.items|length if order.items else 0 }} items</span>
+                                    </td>
+                                    <td data-label="Total">
+                                        <span class="order-amount">${{ "%.2f"|format(order.total_amount) }}</span>
+                                    </td>
+                                    <td data-label="Status">
+                                        {% if order.status == 'Delivered' %}
+                                        <span class="status-badge delivered">
+                                            <i class="fas fa-check-circle me-1"></i> Delivered
+                                        </span>
+                                        {% elif order.status == 'Processing' %}
+                                        <span class="status-badge processing">
+                                            <i class="fas fa-spinner fa-pulse me-1"></i> Processing
+                                        </span>
+                                        {% elif order.status == 'Shipped' %}
+                                        <span class="status-badge shipped">
+                                            <i class="fas fa-truck me-1"></i> Shipped
+                                        </span>
+                                        {% elif order.status == 'Pending' %}
+                                        <span class="status-badge pending">
+                                            <i class="fas fa-clock me-1"></i> Pending
+                                        </span>
+                                        {% elif order.status == 'Cancelled' %}
+                                        <span class="status-badge cancelled">
+                                            <i class="fas fa-times-circle me-1"></i> Cancelled
+                                        </span>
+                                        {% else %}
+                                        <span class="status-badge">{{ order.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td data-label="Action">
+                                        <a href="{{ url_for('customer.order_detail', order_id=order.id) }}" 
+                                           class="btn-view" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state-small text-center py-4">
+                        <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                        <p class="mb-0">No orders yet.</p>
+                        <a href="{{ url_for('main.all_products') }}" class="btn btn-primary-custom btn-sm mt-2">
+                            Start Shopping
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Info -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="dashboard-card mb-4">
+                <div class="card-header-custom">
+                    <i class="fas fa-bolt me-2" style="color: var(--primary);"></i>
+                    <h5 class="mb-0 fw-bold">Quick Actions</h5>
+                </div>
+                <div class="card-body-custom">
+                    <div class="quick-actions">
+                        <a href="{{ url_for('main.all_products') }}" class="quick-action-item">
+                            <i class="fas fa-store"></i>
+                            <div>
+                                <div class="fw-semibold">Continue Shopping</div>
+                                <small class="text-muted">Browse our collection</small>
+                            </div>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('wishlist.view_wishlist') }}" class="quick-action-item">
+                            <i class="fas fa-heart text-danger"></i>
+                            <div>
+                                <div class="fw-semibold">View Wishlist</div>
+                                <small class="text-muted">{{ wishlist_count|default(0) }} items saved</small>
+                            </div>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('customer.profile') }}" class="quick-action-item">
+                            <i class="fas fa-user-edit"></i>
+                            <div>
+                                <div class="fw-semibold">Edit Profile</div>
+                                <small class="text-muted">Update your information</small>
+                            </div>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <a href="{{ url_for('customer.orders') }}" class="quick-action-item">
+                            <i class="fas fa-truck"></i>
+                            <div>
+                                <div class="fw-semibold">Track Orders</div>
+                                <small class="text-muted">View order history</small>
+                            </div>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Information -->
+            <div class="dashboard-card">
+                <div class="card-header-custom">
+                    <i class="fas fa-info-circle me-2" style="color: var(--primary);"></i>
+                    <h5 class="mb-0 fw-bold">Account Information</h5>
+                </div>
+                <div class="card-body-custom">
+                    <div class="info-item">
+                        <span class="info-label">Username</span>
+                        <span class="info-value">{{ current_user.username }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ current_user.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Account Status</span>
+                        <span class="info-value">
+                            {% if current_user.is_verified %}
+                            <span class="text-success"><i class="fas fa-check-circle"></i> Verified</span>
+                            {% else %}
+                            <span class="text-warning"><i class="fas fa-exclamation-triangle"></i> Unverified</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Member Since</span>
+                        <span class="info-value">{{ current_user.created_at.strftime('%B %d, %Y') if current_user.created_at else 'N/A' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Dashboard Cards */
+    .dashboard-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .card-header-custom {
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid rgba(230,126,34,0.15);
+        background: #FFFCF8;
+    }
+    
+    .card-body-custom {
+        padding: 1.5rem;
+    }
+    
+    /* Statistics Cards */
+    .stat-card {
+        background: white;
+        border: 1px solid rgba(230,126,34,0.1);
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(230,126,34,0.1);
+    }
+    
+    /* Dashboard Table */
+    .dashboard-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .dashboard-table th {
+        padding: 0.75rem;
+        font-weight: 600;
+        color: var(--slate);
+        border-bottom: 2px solid rgba(230,126,34,0.1);
+    }
+    
+    .dashboard-table td {
+        padding: 1rem 0.75rem;
+        border-bottom: 1px solid rgba(230,126,34,0.08);
+        vertical-align: middle;
+    }
+    
+    .dashboard-table tr:hover {
+        background: rgba(230,126,34,0.02);
+    }
+    
+    .order-id {
+        font-weight: 700;
+        color: var(--primary);
+        font-family: monospace;
+    }
+    
+    .order-amount {
+        font-weight: 800;
+        color: var(--primary-dark);
+    }
+    
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.delivered {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .status-badge.processing {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+    
+    .status-badge.shipped {
+        background: #E3F2FD;
+        color: #1565C0;
+    }
+    
+    .status-badge.pending {
+        background: #FFF8E1;
+        color: #F57F17;
+    }
+    
+    .status-badge.cancelled {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    /* View Button */
+    .btn-view {
+        background: #FEF3E4;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    
+    .btn-view:hover {
+        background: var(--primary);
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .quick-action-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.75rem;
+        border-radius: 16px;
+        text-decoration: none;
+        color: var(--slate);
+        transition: all 0.2s;
+        background: #FEFEFE;
+        border: 1px solid rgba(230,126,34,0.08);
+    }
+    
+    .quick-action-item:hover {
+        background: #FEF3E4;
+        transform: translateX(5px);
+        border-color: rgba(230,126,34,0.2);
+    }
+    
+    .quick-action-item i:first-child {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #FEF3E4;
+        border-radius: 12px;
+        color: var(--primary);
+        font-size: 1.1rem;
+    }
+    
+    .quick-action-item:hover i:first-child {
+        background: var(--primary);
+        color: white;
+    }
+    
+    /* Account Information */
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(230,126,34,0.08);
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 500;
+        color: var(--slate-light);
+    }
+    
+    .info-value {
+        font-weight: 600;
+        color: var(--slate);
+    }
+    
+    /* Empty State Small */
+    .empty-state-small {
+        background: #FEFEFE;
+        border-radius: 16px;
+    }
+    
+    /* Responsive Table for Mobile */
+    @media (max-width: 768px) {
+        .dashboard-table thead {
+            display: none;
+        }
+        
+        .dashboard-table tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(230,126,34,0.1);
+            border-radius: 16px;
+            padding: 1rem;
+        }
+        
+        .dashboard-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed rgba(230,126,34,0.08);
+        }
+        
+        .dashboard-table td:last-child {
+            border-bottom: none;
+        }
+        
+        .dashboard-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--slate-light);
+        }
+        
+        .stat-card {
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-item {
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .dashboard-card, .stat-card, .welcome-card {
+        animation: fadeInUp 0.4s ease forwards;
+    }
+</style>
+{% endblock %}

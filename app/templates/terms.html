@@ -1,0 +1,515 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                Terms of <span style="color: var(--primary);">Service</span>
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}" style="color: var(--primary);">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Terms of Service</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="terms-card">
+                <div class="terms-header">
+                    <div class="terms-icon">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <h2 class="mb-2">Terms of Service</h2>
+                    <p class="text-muted mb-0">Last Updated: April 2025</p>
+                </div>
+                
+                <div class="terms-body">
+                    <!-- Quick Navigation -->
+                    <div class="quick-nav mb-4">
+                        <div class="quick-nav-title">
+                            <i class="fas fa-list-ul me-2"></i> Quick Navigation
+                        </div>
+                        <div class="quick-nav-links">
+                            <a href="#section1">1. Acceptance</a>
+                            <a href="#section2">2. Account</a>
+                            <a href="#section3">3. Products</a>
+                            <a href="#section4">4. Pricing</a>
+                            <a href="#section5">5. Shipping</a>
+                            <a href="#section6">6. Returns</a>
+                            <a href="#section7">7. Conduct</a>
+                            <a href="#section8">8. Liability</a>
+                            <a href="#section9">9. Governing Law</a>
+                            <a href="#section10">10. Changes</a>
+                            <a href="#section11">11. Contact</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 1 -->
+                    <div class="terms-section" id="section1">
+                        <div class="section-number">1</div>
+                        <div class="section-content">
+                            <h3>Acceptance of Terms</h3>
+                            <p>By accessing and using Awwal Investment ("the Company", "we", "us", "our") website, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our website. These terms constitute a legally binding agreement between you and Awwal Investment.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 2 -->
+                    <div class="terms-section" id="section2">
+                        <div class="section-number">2</div>
+                        <div class="section-content">
+                            <h3>Account Registration</h3>
+                            <p>To place orders, you must create an account with accurate and complete information. You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account. You agree to:</p>
+                            <ul>
+                                <li>Provide accurate, current, and complete information during registration</li>
+                                <li>Maintain and update your information to keep it accurate and current</li>
+                                <li>Notify us immediately of any unauthorized use of your account</li>
+                                <li>Accept responsibility for all activities that occur under your account</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 3 -->
+                    <div class="terms-section" id="section3">
+                        <div class="section-number">3</div>
+                        <div class="section-content">
+                            <h3>Product Information</h3>
+                            <p>We strive to display accurate product descriptions, prices, and images. However, we do not warrant that product descriptions or other content is accurate, complete, or error-free. Colors may vary based on your screen settings. We reserve the right to:</p>
+                            <ul>
+                                <li>Modify or discontinue products without notice</li>
+                                <li>Correct any errors, inaccuracies, or omissions</li>
+                                <li>Limit quantities of any product</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 4 -->
+                    <div class="terms-section" id="section4">
+                        <div class="section-number">4</div>
+                        <div class="section-content">
+                            <h3>Pricing and Payment</h3>
+                            <p>All prices are in Nigerian Naira (₦) or USD ($) depending on your location. We reserve the right to change prices without notice. Payment must be made at the time of order placement using our secure payment methods:</p>
+                            <div class="payment-methods">
+                                <span class="payment-badge"><i class="fab fa-cc-visa"></i> Visa</span>
+                                <span class="payment-badge"><i class="fab fa-cc-mastercard"></i> Mastercard</span>
+                                <span class="payment-badge"><i class="fab fa-cc-paypal"></i> PayPal</span>
+                                <span class="payment-badge"><i class="fas fa-university"></i> Bank Transfer</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 5 -->
+                    <div class="terms-section" id="section5">
+                        <div class="section-number">5</div>
+                        <div class="section-content">
+                            <h3>Shipping and Delivery</h3>
+                            <p>Delivery times are estimates and not guaranteed. We are not responsible for delays caused by shipping carriers, customs, or other external factors. Shipping costs are calculated at checkout based on:</p>
+                            <ul>
+                                <li>Order weight and dimensions</li>
+                                <li>Delivery location</li>
+                                <li>Selected shipping method</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 6 -->
+                    <div class="terms-section" id="section6">
+                        <div class="section-number">6</div>
+                        <div class="section-content">
+                            <h3>Returns and Refunds</h3>
+                            <p>We offer a 30-day return policy for unused items in original packaging. To be eligible for a return:</p>
+                            <ul>
+                                <li>Items must be unused and in original condition</li>
+                                <li>Original packaging must be intact</li>
+                                <li>Proof of purchase is required</li>
+                            </ul>
+                            <p>Refunds will be processed within 7-14 business days after receiving and inspecting returned items.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 7 -->
+                    <div class="terms-section" id="section7">
+                        <div class="section-number">7</div>
+                        <div class="section-content">
+                            <h3>User Conduct</h3>
+                            <p>You agree not to engage in any prohibited activities, including but not limited to:</p>
+                            <div class="conduct-grid">
+                                <div class="conduct-item">
+                                    <i class="fas fa-gavel"></i>
+                                    <span>Violate laws or regulations</span>
+                                </div>
+                                <div class="conduct-item">
+                                    <i class="fas fa-copyright"></i>
+                                    <span>Infringe intellectual property</span>
+                                </div>
+                                <div class="conduct-item">
+                                    <i class="fas fa-bug"></i>
+                                    <span>Upload malicious code</span>
+                                </div>
+                                <div class="conduct-item">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Attempt unauthorized access</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 8 -->
+                    <div class="terms-section" id="section8">
+                        <div class="section-number">8</div>
+                        <div class="section-content">
+                            <h3>Limitation of Liability</h3>
+                            <p>Awwal Investment shall not be liable for any indirect, incidental, or consequential damages arising from your use of our website or products. Our total liability shall not exceed the amount paid for the product in question.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 9 -->
+                    <div class="terms-section" id="section9">
+                        <div class="section-number">9</div>
+                        <div class="section-content">
+                            <h3>Governing Law</h3>
+                            <p>These terms shall be governed by and construed in accordance with the laws of the Federal Republic of Nigeria. Any disputes arising from these terms shall be subject to the exclusive jurisdiction of the courts of Lagos, Nigeria.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 10 -->
+                    <div class="terms-section" id="section10">
+                        <div class="section-number">10</div>
+                        <div class="section-content">
+                            <h3>Changes to Terms</h3>
+                            <p>We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting to the website. Your continued use of the website constitutes acceptance of modified terms. We will notify users of significant changes via email.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 11 -->
+                    <div class="terms-section" id="section11">
+                        <div class="section-number">11</div>
+                        <div class="section-content">
+                            <h3>Contact Information</h3>
+                            <p>For questions about these Terms, please contact us:</p>
+                            <div class="contact-info">
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <strong>Email:</strong> legal@awwalinvestment.com
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <strong>Phone:</strong> +234 123 456 7890
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <strong>Address:</strong> Lagos, Nigeria
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Acceptance Checkbox -->
+                    <div class="acceptance-box">
+                        <div class="acceptance-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="acceptance-text">
+                            <strong>By using our website, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="terms-footer">
+                    <a href="{{ url_for('auth.signup') }}" class="btn btn-primary-custom">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Sign Up
+                    </a>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-outline-custom">
+                        <i class="fas fa-home me-2"></i> Return to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Terms Card */
+    .terms-card {
+        background: white;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .terms-header {
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFF2E6 100%);
+        padding: 2rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .terms-icon {
+        width: 70px;
+        height: 70px;
+        background: var(--btn-grad);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2rem;
+        color: white;
+        box-shadow: 0 5px 15px rgba(230,126,34,0.3);
+    }
+    
+    .terms-body {
+        padding: 2rem;
+    }
+    
+    /* Quick Navigation */
+    .quick-nav {
+        background: #FEF3E4;
+        border-radius: 16px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .quick-nav-title {
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: var(--primary-dark);
+    }
+    
+    .quick-nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .quick-nav-links a {
+        background: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        color: var(--slate);
+        transition: all 0.2s;
+    }
+    
+    .quick-nav-links a:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    /* Terms Section */
+    .terms-section {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border-radius: 16px;
+        transition: all 0.2s;
+    }
+    
+    .terms-section:hover {
+        background: rgba(230,126,34,0.02);
+    }
+    
+    .section-number {
+        width: 40px;
+        height: 40px;
+        background: var(--btn-grad);
+        color: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    
+    .section-content {
+        flex: 1;
+    }
+    
+    .section-content h3 {
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.3rem;
+    }
+    
+    .section-content p {
+        color: var(--slate);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+    
+    .section-content ul {
+        color: var(--slate);
+        line-height: 1.6;
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .section-content li {
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Payment Methods */
+    .payment-methods {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+    }
+    
+    .payment-badge {
+        background: #FEF3E4;
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        color: var(--primary-dark);
+    }
+    
+    .payment-badge i {
+        margin-right: 0.3rem;
+    }
+    
+    /* Conduct Grid */
+    .conduct-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+    }
+    
+    .conduct-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: #F8F9FA;
+        border-radius: 10px;
+    }
+    
+    .conduct-item i {
+        width: 25px;
+        color: var(--primary);
+    }
+    
+    /* Contact Info */
+    .contact-info {
+        background: #F8F9FA;
+        border-radius: 16px;
+        padding: 1rem;
+        margin-top: 0.5rem;
+    }
+    
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem;
+    }
+    
+    .contact-item i {
+        width: 25px;
+        color: var(--primary);
+    }
+    
+    /* Acceptance Box */
+    .acceptance-box {
+        background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .acceptance-icon i {
+        font-size: 2.5rem;
+        color: #2E7D32;
+    }
+    
+    .acceptance-text {
+        flex: 1;
+        color: #1B5E20;
+    }
+    
+    /* Terms Footer */
+    .terms-footer {
+        background: #FFFCF8;
+        padding: 1.5rem;
+        border-top: 1px solid rgba(230,126,34,0.1);
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .terms-body {
+            padding: 1.25rem;
+        }
+        
+        .terms-section {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .section-number {
+            margin-bottom: 0.5rem;
+        }
+        
+        .quick-nav-links {
+            justify-content: center;
+        }
+        
+        .conduct-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .acceptance-box {
+            flex-direction: column;
+        }
+        
+        .terms-footer {
+            flex-direction: column;
+        }
+        
+        .terms-footer .btn {
+            width: 100%;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .terms-card {
+        animation: fadeInUp 0.4s ease forwards;
+    }
+    
+    .terms-section {
+        animation: fadeInUp 0.3s ease forwards;
+        animation-delay: calc(var(--index, 0) * 0.05s);
+    }
+</style>
+{% endblock %}

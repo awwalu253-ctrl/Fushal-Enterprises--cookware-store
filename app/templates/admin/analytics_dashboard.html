@@ -1,0 +1,564 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    <i class="fas fa-chart-line me-2" style="color: var(--primary);"></i>
+                    Sales <span style="color: var(--primary);">Analytics</span>
+                </h1>
+                <p class="text-muted mt-2 mb-0">Track your store's performance and sales metrics</p>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <div class="date-range-badge">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    Last 30 Days
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container-fluid px-4 my-4">
+    <!-- Stats Cards Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card stat-card-revenue">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <p class="stat-label">Total Revenue</p>
+                    <h3 class="stat-number">${{ "%.2f"|format(total_revenue) }}</h3>
+                    <div class="stat-trend">
+                        <span class="trend-{% if revenue_trend > 0 %}up{% else %}down{% endif %}">
+                            <i class="fas fa-arrow-{% if revenue_trend > 0 %}up{% else %}down{% endif %}"></i> 
+                            {{ "%.1f"|format(revenue_trend|abs) }}%
+                        </span>
+                        <span class="trend-period">vs last month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card stat-card-orders">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <p class="stat-label">Total Orders</p>
+                    <h3 class="stat-number">{{ total_orders }}</h3>
+                    <div class="stat-trend">
+                        <span class="trend-{% if orders_trend > 0 %}up{% else %}down{% endif %}">
+                            <i class="fas fa-arrow-{% if orders_trend > 0 %}up{% else %}down{% endif %}"></i> 
+                            {{ "%.1f"|format(orders_trend|abs) }}%
+                        </span>
+                        <span class="trend-period">vs last month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card stat-card-aov">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <p class="stat-label">Average Order Value</p>
+                    <h3 class="stat-number">${{ "%.2f"|format(avg_order_value) }}</h3>
+                    <div class="stat-trend">
+                        <span class="trend-{% if aov_trend > 0 %}up{% else %}down{% endif %}">
+                            <i class="fas fa-arrow-{% if aov_trend > 0 %}up{% else %}down{% endif %}"></i> 
+                            {{ "%.1f"|format(aov_trend|abs) }}%
+                        </span>
+                        <span class="trend-period">vs last month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card stat-card-customers">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <p class="stat-label">Total Customers</p>
+                    <h3 class="stat-number">{{ total_customers }}</h3>
+                    <div class="stat-trend">
+                        <span class="trend-{% if customers_trend > 0 %}up{% else %}down{% endif %}">
+                            <i class="fas fa-arrow-{% if customers_trend > 0 %}up{% else %}down{% endif %}"></i> 
+                            {{ "%.1f"|format(customers_trend|abs) }}%
+                        </span>
+                        <span class="trend-period">vs last month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <i class="fas fa-chart-line me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Sales Trend</h5>
+                    </div>
+                    <div class="chart-legend">
+                        <span><i class="fas fa-circle" style="color: #E67E22;"></i> Revenue</span>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <canvas id="salesChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <i class="fas fa-chart-pie me-2" style="color: var(--primary);"></i>
+                        <h5 class="mb-0 fw-bold">Category Distribution</h5>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <canvas id="categoryChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Stats Row -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="insight-card">
+                <div class="insight-header">
+                    <i class="fas fa-trophy me-2" style="color: var(--primary);"></i>
+                    <h6 class="mb-0 fw-bold">Top Performing Products</h6>
+                </div>
+                <div class="insight-body">
+                    <div class="top-products-list">
+                        {% for product in top_products %}
+                        <div class="product-item">
+                            <div class="product-rank">{{ loop.index }}</div>
+                            <div class="product-info">
+                                <div class="product-name">{{ product.name }}</div>
+                                <div class="product-sales">{{ product.total_sold }} units sold</div>
+                            </div>
+                            <div class="product-revenue">${{ "%.2f"|format(product.total_revenue) }}</div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-2"></i>
+                            <p class="text-muted">No sales data available yet</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="insight-card">
+                <div class="insight-header">
+                    <i class="fas fa-chart-simple me-2" style="color: var(--primary);"></i>
+                    <h6 class="mb-0 fw-bold">Key Metrics</h6>
+                </div>
+                <div class="insight-body">
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-value">{{ "%.1f"|format(conversion_rate) }}%</div>
+                            <div class="metric-label">Conversion Rate</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">${{ "%.2f"|format(avg_cart_value) }}</div>
+                            <div class="metric-label">Avg Cart Value</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">{{ "%.1f"|format(repeat_customers) }}%</div>
+                            <div class="metric-label">Repeat Customers</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">{{ "%.1f"|format(abandoned_carts) }}%</div>
+                            <div class="metric-label">Abandoned Carts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Statistics Cards */
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+        transition: all 0.3s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(230,126,34,0.12);
+    }
+    
+    .stat-icon-wrapper {
+        background: #FEF3E4;
+        border-radius: 16px;
+        padding: 0.75rem;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .stat-card-revenue .stat-icon { color: #E67E22; }
+    .stat-card-orders .stat-icon { color: #F39C12; }
+    .stat-card-aov .stat-icon { color: #D35400; }
+    .stat-card-customers .stat-icon { color: #2ECC71; }
+    
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 0;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+    
+    .stat-trend {
+        margin-top: 0.5rem;
+        font-size: 0.7rem;
+    }
+    
+    .trend-up {
+        color: #28a745;
+        font-weight: 600;
+    }
+    
+    .trend-down {
+        color: #dc3545;
+        font-weight: 600;
+    }
+    
+    .trend-period {
+        color: #6c757d;
+        margin-left: 0.5rem;
+    }
+    
+    /* Chart Card */
+    .chart-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(230,126,34,0.1);
+        background: #FFFCF8;
+    }
+    
+    .chart-legend {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .chart-body {
+        padding: 1.5rem;
+    }
+    
+    /* Insight Card */
+    .insight-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(230,126,34,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .insight-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(230,126,34,0.1);
+        background: #FFFCF8;
+    }
+    
+    .insight-body {
+        padding: 1.5rem;
+    }
+    
+    /* Top Products List */
+    .top-products-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .product-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: #FEFEFE;
+        border-radius: 12px;
+        transition: all 0.2s;
+    }
+    
+    .product-item:hover {
+        background: #FEF3E4;
+        transform: translateX(5px);
+    }
+    
+    .product-rank {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, #E67E22 0%, #F39C12 100%);
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+    
+    .product-info {
+        flex: 1;
+    }
+    
+    .product-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .product-sales {
+        font-size: 0.7rem;
+        color: #6c757d;
+    }
+    
+    .product-revenue {
+        font-weight: 700;
+        color: #D35400;
+    }
+    
+    /* Metrics Grid */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .metric-item {
+        text-align: center;
+        padding: 1rem;
+        background: #FEFEFE;
+        border-radius: 12px;
+        border: 1px solid rgba(230,126,34,0.08);
+        transition: all 0.2s;
+    }
+    
+    .metric-item:hover {
+        background: #FEF3E4;
+        transform: translateY(-3px);
+    }
+    
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #E67E22;
+    }
+    
+    .metric-label {
+        font-size: 0.7rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    /* Date Range Badge */
+    .date-range-badge {
+        background: #FEF3E4;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        color: #D35400;
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .stat-card {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+        }
+        
+        .chart-header {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .product-item {
+            flex-wrap: wrap;
+        }
+        
+        .product-revenue {
+            width: 100%;
+            text-align: right;
+        }
+        
+        .metrics-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .stat-card, .chart-card, .insight-card {
+        animation: fadeInUp 0.4s ease forwards;
+    }
+    
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Sales Chart (Line)
+    {% if daily_sales %}
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
+    new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for day in daily_sales %}'{{ day.date }}',{% endfor %}],
+            datasets: [{
+                label: 'Sales Amount ($)',
+                data: [{% for day in daily_sales %}{{ day.revenue }},{% endfor %}],
+                borderColor: '#E67E22',
+                backgroundColor: 'rgba(230, 126, 34, 0.05)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#F39C12',
+                pointBorderColor: 'white',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `$${context.parsed.y.toFixed(2)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // Category Distribution Chart (Doughnut)
+    {% if category_sales %}
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for cat in category_sales %}'{{ cat.name }}',{% endfor %}],
+            datasets: [{
+                data: [{% for cat in category_sales %}{{ cat.total }},{% endfor %}],
+                backgroundColor: ['#E67E22', '#F39C12', '#D35400', '#2C3E50', '#F1C40F', '#E74C3C', '#3498DB', '#2ECC71'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+</script>
+{% endblock %}

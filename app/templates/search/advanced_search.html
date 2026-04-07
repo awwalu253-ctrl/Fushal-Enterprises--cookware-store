@@ -1,0 +1,581 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    Advanced <span style="color: var(--primary);">Search</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}" style="color: var(--primary);">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Advanced Search</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-search me-1"></i> {{ products|length }} Results Found
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Enhanced Filters Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="sidebar-filters">
+                <!-- Filter Toggle for Mobile -->
+                <button class="btn btn-primary-custom w-100 mb-3 d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="fas fa-filter me-2"></i> Show/Hide Filters
+                </button>
+                
+                <div class="collapse d-lg-block" id="filterCollapse">
+                    <form method="GET" action="{{ url_for('search.advanced_search') }}" id="searchForm">
+                        <!-- Search Input -->
+                        <div class="filter-card">
+                            <div class="filter-header">
+                                <i class="fas fa-search me-2" style="color: var(--primary);"></i>
+                                <h5 class="mb-0 fw-bold">Search Products</h5>
+                            </div>
+                            <div class="filter-body">
+                                <div class="search-input-wrapper">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-transparent border-end-0" style="border-color: rgba(230,126,34,0.2);">
+                                            <i class="fas fa-search" style="color: var(--primary);"></i>
+                                        </span>
+                                        <input type="text" name="q" id="searchInput" class="form-control" 
+                                               value="{{ query }}" placeholder="Search by name, description..." 
+                                               style="border-left: none;">
+                                    </div>
+                                    <div id="searchSuggestions" class="suggestions-dropdown" style="display: none;"></div>
+                                </div>
+                                {% if query %}
+                                <div class="mt-2">
+                                    <small class="text-muted">Showing results for: <strong class="text-primary">"{{ query }}"</strong></small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Category Filter -->
+                        <div class="filter-card">
+                            <div class="filter-header">
+                                <i class="fas fa-tags me-2" style="color: var(--primary);"></i>
+                                <h5 class="mb-0 fw-bold">Category</h5>
+                            </div>
+                            <div class="filter-body">
+                                <select name="category" class="form-select filter-select">
+                                    <option value="">All Categories</option>
+                                    {% for cat in categories %}
+                                    <option value="{{ cat.id }}" {% if selected_category|int == cat.id %}selected{% endif %}>
+                                        {{ cat.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Price Range Filter -->
+                        <div class="filter-card">
+                            <div class="filter-header">
+                                <i class="fas fa-dollar-sign me-2" style="color: var(--primary);"></i>
+                                <h5 class="mb-0 fw-bold">Price Range</h5>
+                            </div>
+                            <div class="filter-body">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="small text-muted">Min ($)</label>
+                                        <input type="number" name="min_price" class="form-control form-control-sm" 
+                                               placeholder="0" value="{{ min_price }}" step="10">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="small text-muted">Max ($)</label>
+                                        <input type="number" name="max_price" class="form-control form-control-sm" 
+                                               placeholder="Any" value="{{ max_price }}" step="10">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sort By -->
+                        <div class="filter-card">
+                            <div class="filter-header">
+                                <i class="fas fa-sort-amount-down me-2" style="color: var(--primary);"></i>
+                                <h5 class="mb-0 fw-bold">Sort By</h5>
+                            </div>
+                            <div class="filter-body">
+                                <select name="sort" class="form-select filter-select">
+                                    <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
+                                    <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
+                                    <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                                    <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                                    <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Stock Filter -->
+                        <div class="filter-card">
+                            <div class="filter-header">
+                                <i class="fas fa-boxes me-2" style="color: var(--primary);"></i>
+                                <h5 class="mb-0 fw-bold">Availability</h5>
+                            </div>
+                            <div class="filter-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="in_stock" id="inStock" 
+                                           value="1" style="border-color: var(--primary);">
+                                    <label class="form-check-label" for="inStock">
+                                        In Stock Only
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="on_sale" id="onSale" 
+                                           value="1" style="border-color: var(--primary);">
+                                    <label class="form-check-label" for="onSale">
+                                        On Sale Only
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary-custom">
+                                <i class="fas fa-search me-2"></i> Apply Filters
+                            </button>
+                            <a href="{{ url_for('search.advanced_search') }}" class="btn btn-outline-custom">
+                                <i class="fas fa-undo-alt me-2"></i> Clear All
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Products Results -->
+        <div class="col-lg-9">
+            <!-- Results Header -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="mb-0" style="font-family: 'Playfair Display', serif;">
+                        {% if query %}
+                        Search Results
+                        {% else %}
+                        All Products
+                        {% endif %}
+                    </h4>
+                    <p class="text-muted small mt-1">{{ products|length }} products found</p>
+                </div>
+                
+                <!-- Active Filters Display -->
+                {% if query or min_price or max_price or selected_category %}
+                <div class="active-filters mt-2 mt-sm-0">
+                    <span class="text-muted me-2">Active filters:</span>
+                    {% if query %}
+                    <span class="filter-badge">
+                        <i class="fas fa-search"></i> "{{ query }}"
+                        <a href="#" class="remove-filter" data-filter="q"><i class="fas fa-times"></i></a>
+                    </span>
+                    {% endif %}
+                    {% if min_price %}
+                    <span class="filter-badge">
+                        Min ${{ min_price }}
+                        <a href="#" class="remove-filter" data-filter="min_price"><i class="fas fa-times"></i></a>
+                    </span>
+                    {% endif %}
+                    {% if max_price %}
+                    <span class="filter-badge">
+                        Max ${{ max_price }}
+                        <a href="#" class="remove-filter" data-filter="max_price"><i class="fas fa-times"></i></a>
+                    </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Products Grid -->
+            {% if products %}
+            <div class="product-grid">
+                {% for product in products %}
+                <div class="product-card" data-price="{{ product.price }}">
+                    <div class="product-image">
+                        <img src="{{ product.image_url or 'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?w=600&auto=format' }}" 
+                             alt="{{ product.name }}">
+                        
+                        <!-- Sale Badge -->
+                        {% if product.old_price %}
+                        <div class="position-absolute top-0 start-0 m-2">
+                            <span class="badge bg-danger rounded-pill px-3 py-2">
+                                <i class="fas fa-tag"></i> SALE
+                            </span>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Stock Badge -->
+                        {% if product.stock <= 0 %}
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-secondary rounded-pill px-3 py-2">Out of Stock</span>
+                        </div>
+                        {% elif product.stock < 5 %}
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2">Only {{ product.stock }} left!</span>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Quick Actions Overlay -->
+                        <div class="product-overlay">
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('main.product_detail', product_id=product.id) }}" 
+                                   class="btn btn-light rounded-pill">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
+                                {% if current_user.is_authenticated and not current_user.is_admin and product.stock > 0 %}
+                                <a href="{{ url_for('wishlist.add_to_wishlist', product_id=product.id) }}" 
+                                   class="btn btn-light rounded-pill">
+                                    <i class="fas fa-heart text-danger"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="product-details">
+                        <div>
+                            <span class="badge bg-light text-dark mb-2" style="background: #FEF3E4 !important;">
+                                {{ product.category.name if product.category else 'Uncategorized' }}
+                            </span>
+                            <h5 class="fw-bold mb-2">{{ product.name }}</h5>
+                        </div>
+                        
+                        <p class="text-muted small mb-2">{{ product.description[:80] }}...</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <span class="product-price">${{ "%.2f"|format(product.price) }}</span>
+                                {% if product.old_price %}
+                                <span class="text-muted text-decoration-line-through ms-2 small">
+                                    ${{ "%.2f"|format(product.old_price) }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="rating">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star-half-alt text-warning"></i>
+                            </div>
+                        </div>
+                        
+                        {% if current_user.is_authenticated and not current_user.is_admin %}
+                            {% if product.stock > 0 %}
+                            <div class="d-flex gap-2 mt-3">
+                                <a href="{{ url_for('cart.add_to_cart', product_id=product.id) }}" 
+                                   class="add-to-cart-btn flex-grow-1 text-center text-decoration-none">
+                                    <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                                </a>
+                                <a href="{{ url_for('main.product_detail', product_id=product.id) }}" 
+                                   class="action-icon" style="background: #FEF3E4; width: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                                    <i class="fas fa-info"></i>
+                                </a>
+                            </div>
+                            {% else %}
+                            <button class="add-to-cart-btn mt-3" disabled style="background: #ccc; cursor: not-allowed;">
+                                <i class="fas fa-times-circle me-2"></i>Out of Stock
+                            </button>
+                            {% endif %}
+                        {% elif not current_user.is_authenticated %}
+                        <a href="{{ url_for('auth.login') }}" class="add-to-cart-btn mt-3 text-center text-decoration-none">
+                            <i class="fas fa-lock me-2"></i>Login to Purchase
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if pagination and pagination.pages > 1 %}
+            <nav aria-label="Page navigation" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if pagination.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('search.advanced_search', page=pagination.prev_num, **request.args) }}">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in pagination.iter_pages() %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('search.advanced_search', page=page_num, **request.args) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if pagination.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('search.advanced_search', page=pagination.next_num, **request.args) }}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+            {% else %}
+            <!-- No Results -->
+            <div class="no-results text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-search fa-4x text-muted"></i>
+                </div>
+                <h3 class="mb-3">No products found</h3>
+                <p class="text-muted mb-4">We couldn't find any products matching your criteria.</p>
+                <div class="suggestions">
+                    <h5 class="mb-3">Try these suggestions:</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">✓ Check your spelling</li>
+                        <li class="mb-2">✓ Try more general keywords</li>
+                        <li class="mb-2">✓ Remove some filters</li>
+                        <li class="mb-2">✓ Browse all products instead</li>
+                    </ul>
+                    <a href="{{ url_for('main.all_products') }}" class="btn btn-primary-custom mt-4">
+                        <i class="fas fa-store me-2"></i> Browse All Products
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Sidebar Filters */
+    .sidebar-filters {
+        position: sticky;
+        top: 90px;
+    }
+    
+    .filter-card {
+        background: white;
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .filter-header {
+        padding: 1rem 1.2rem;
+        border-bottom: 2px solid rgba(230,126,34,0.1);
+        background: #FFFCF8;
+    }
+    
+    .filter-body {
+        padding: 1rem 1.2rem;
+    }
+    
+    .filter-select {
+        border-radius: 12px;
+        border: 1px solid rgba(230,126,34,0.2);
+        padding: 0.6rem;
+    }
+    
+    .filter-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(230,126,34,0.1);
+    }
+    
+    /* Search Input with Suggestions */
+    .search-input-wrapper {
+        position: relative;
+    }
+    
+    .suggestions-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        z-index: 1000;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .suggestions-dropdown div {
+        padding: 10px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0e2d4;
+    }
+    
+    .suggestions-dropdown div:hover {
+        background: #FFF2E5;
+    }
+    
+    /* Active Filters */
+    .active-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .filter-badge {
+        background: #FEF3E4;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .remove-filter {
+        color: var(--primary);
+        text-decoration: none;
+    }
+    
+    .remove-filter:hover {
+        color: var(--primary-dark);
+    }
+    
+    /* Product Overlay */
+    .product-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: 0.3s;
+    }
+    
+    .product-card:hover .product-overlay {
+        opacity: 1;
+    }
+    
+    /* No Results */
+    .no-results {
+        background: white;
+        border-radius: 28px;
+        padding: 3rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+    
+    @media (max-width: 768px) {
+        .sidebar-filters {
+            position: static;
+        }
+        .active-filters {
+            margin-top: 1rem;
+        }
+        .no-results {
+            padding: 2rem;
+        }
+    }
+</style>
+
+<script>
+    // Autocomplete functionality
+    const searchInput = document.getElementById('searchInput');
+    const suggestionsDiv = document.getElementById('searchSuggestions');
+    let debounceTimer;
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+            
+            debounceTimer = setTimeout(() => {
+                fetch(`/search/autocomplete?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.length > 0) {
+                            suggestionsDiv.innerHTML = '';
+                            data.forEach(item => {
+                                const div = document.createElement('div');
+                                div.innerHTML = `
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>${escapeHtml(item.name)}</strong>
+                                            <div class="small text-muted">$${item.price}</div>
+                                        </div>
+                                        <i class="fas fa-arrow-right" style="color: var(--primary);"></i>
+                                    </div>
+                                `;
+                                div.addEventListener('click', () => {
+                                    searchInput.value = item.name;
+                                    suggestionsDiv.style.display = 'none';
+                                    document.getElementById('searchForm').submit();
+                                });
+                                suggestionsDiv.appendChild(div);
+                            });
+                            suggestionsDiv.style.display = 'block';
+                        } else {
+                            suggestionsDiv.style.display = 'none';
+                        }
+                    })
+                    .catch(() => {
+                        suggestionsDiv.style.display = 'none';
+                    });
+            }, 300);
+        });
+        
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target !== searchInput) {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+    }
+    
+    // Remove filter functionality
+    document.querySelectorAll('.remove-filter').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const filterName = this.dataset.filter;
+            const url = new URL(window.location.href);
+            url.searchParams.delete(filterName);
+            window.location.href = url.toString();
+        });
+    });
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+</script>
+{% endblock %}

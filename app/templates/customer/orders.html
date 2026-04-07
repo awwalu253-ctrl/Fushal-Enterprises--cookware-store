@@ -1,0 +1,510 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-4" style="background: linear-gradient(135deg, #FFF2E6 0%, #FFE8D6 100%);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="display-5 fw-bold" style="font-family: 'Playfair Display', serif;">
+                    My <span style="color: var(--primary);">Orders</span>
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}" style="color: var(--primary);">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('customer.dashboard') }}" style="color: var(--primary);">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">My Orders</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                    <i class="fas fa-shopping-bag me-1"></i> {{ orders|length }} Orders Total
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    {% if orders %}
+    <!-- Order Statistics Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card text-center p-3 rounded-4">
+                <div class="stat-icon mb-2">
+                    <i class="fas fa-shopping-bag fa-2x" style="color: var(--primary);"></i>
+                </div>
+                <h3 class="fw-bold mb-0">{{ orders|length }}</h3>
+                <p class="text-muted small mb-0">Total Orders</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card text-center p-3 rounded-4">
+                <div class="stat-icon mb-2">
+                    <i class="fas fa-dollar-sign fa-2x" style="color: var(--secondary);"></i>
+                </div>
+                <h3 class="fw-bold mb-0">${{ "%.2f"|format(orders|sum(attribute='total_amount')) }}</h3>
+                <p class="text-muted small mb-0">Total Spent</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card text-center p-3 rounded-4">
+                <div class="stat-icon mb-2">
+                    <i class="fas fa-truck fa-2x" style="color: var(--accent);"></i>
+                </div>
+                <h3 class="fw-bold mb-0">{{ orders|selectattr('status', 'equalto', 'Delivered')|list|length }}</h3>
+                <p class="text-muted small mb-0">Delivered</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card text-center p-3 rounded-4">
+                <div class="stat-icon mb-2">
+                    <i class="fas fa-clock fa-2x" style="color: #F39C12;"></i>
+                </div>
+                <h3 class="fw-bold mb-0">{{ orders|selectattr('status', 'equalto', 'Processing')|list|length + orders|selectattr('status', 'equalto', 'Pending')|list|length }}</h3>
+                <p class="text-muted small mb-0">In Progress</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table - Modern Design -->
+    <div class="orders-container">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <h4 class="mb-0" style="font-family: 'Playfair Display', serif;">Order History</h4>
+            <div class="d-flex gap-2 mt-2 mt-sm-0">
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-filter me-1"></i> Filter
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item filter-status" href="#" data-status="all">All Orders</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item filter-status" href="#" data-status="Pending">Pending</a></li>
+                        <li><a class="dropdown-item filter-status" href="#" data-status="Processing">Processing</a></li>
+                        <li><a class="dropdown-item filter-status" href="#" data-status="Shipped">Shipped</a></li>
+                        <li><a class="dropdown-item filter-status" href="#" data-status="Delivered">Delivered</a></li>
+                        <li><a class="dropdown-item filter-status" href="#" data-status="Cancelled">Cancelled</a></li>
+                    </ul>
+                </div>
+                <input type="text" id="searchOrder" class="form-control form-control-sm rounded-pill" placeholder="Search orders..." style="width: 200px;">
+            </div>
+        </div>
+
+        <!-- Desktop Table View -->
+        <div class="table-responsive d-none d-md-block">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    {% for order in orders %}
+                    <tr class="order-row" data-status="{{ order.status }}">
+                        <td data-label="Order ID">
+                            <span class="order-id">#{{ order.id }}</span>
+                        </td>
+                        <td data-label="Date">
+                            <div class="order-date">
+                                <i class="far fa-calendar-alt me-1" style="color: var(--primary);"></i>
+                                {{ order.order_date.strftime('%b %d, %Y') }}
+                                <small class="text-muted d-block">{{ order.order_date.strftime('%I:%M %p') }}</small>
+                            </div>
+                        </td>
+                        <td data-label="Items">
+                            <span class="items-count">{{ order.items|length if order.items else 0 }} items</span>
+                        </td>
+                        <td data-label="Total">
+                            <span class="order-amount">${{ "%.2f"|format(order.total_amount) }}</span>
+                        </td>
+                        <td data-label="Status">
+                            {% if order.status == 'Delivered' %}
+                            <span class="status-badge delivered">
+                                <i class="fas fa-check-circle me-1"></i> Delivered
+                            </span>
+                            {% elif order.status == 'Processing' %}
+                            <span class="status-badge processing">
+                                <i class="fas fa-spinner fa-pulse me-1"></i> Processing
+                            </span>
+                            {% elif order.status == 'Shipped' %}
+                            <span class="status-badge shipped">
+                                <i class="fas fa-truck me-1"></i> Shipped
+                            </span>
+                            {% elif order.status == 'Pending' %}
+                            <span class="status-badge pending">
+                                <i class="fas fa-clock me-1"></i> Pending
+                            </span>
+                            {% elif order.status == 'Cancelled' %}
+                            <span class="status-badge cancelled">
+                                <i class="fas fa-times-circle me-1"></i> Cancelled
+                            </span>
+                            {% else %}
+                            <span class="status-badge">{{ order.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Actions">
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('customer.order_detail', order_id=order.id) }}" class="btn-action view-btn" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if order.status == 'Delivered' %}
+                                <button class="btn-action review-btn" title="Write Review" data-order-id="{{ order.id }}">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                                {% endif %}
+                                {% if order.status == 'Pending' %}
+                                <button class="btn-action cancel-btn" title="Cancel Order" data-order-id="{{ order.id }}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="d-md-none">
+            {% for order in orders %}
+            <div class="order-card mb-3 p-3 rounded-4 order-row" data-status="{{ order.status }}">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <span class="order-id fw-bold">#{{ order.id }}</span>
+                        <div class="order-date small text-muted">
+                            <i class="far fa-calendar-alt"></i> {{ order.order_date.strftime('%b %d, %Y') }}
+                        </div>
+                    </div>
+                    {% if order.status == 'Delivered' %}
+                    <span class="status-badge delivered">
+                        <i class="fas fa-check-circle"></i> Delivered
+                    </span>
+                    {% elif order.status == 'Processing' %}
+                    <span class="status-badge processing">
+                        <i class="fas fa-spinner fa-pulse"></i> Processing
+                    </span>
+                    {% elif order.status == 'Shipped' %}
+                    <span class="status-badge shipped">
+                        <i class="fas fa-truck"></i> Shipped
+                    </span>
+                    {% elif order.status == 'Pending' %}
+                    <span class="status-badge pending">
+                        <i class="fas fa-clock"></i> Pending
+                    </span>
+                    {% elif order.status == 'Cancelled' %}
+                    <span class="status-badge cancelled">
+                        <i class="fas fa-times-circle"></i> Cancelled
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="order-details">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Items:</span>
+                        <span>{{ order.items|length if order.items else 0 }} items</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Total:</span>
+                        <span class="order-amount fw-bold" style="color: var(--primary);">${{ "%.2f"|format(order.total_amount) }}</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('customer.order_detail', order_id=order.id) }}" class="btn btn-primary-custom btn-sm flex-grow-1">
+                            <i class="fas fa-eye me-1"></i> View Details
+                        </a>
+                        {% if order.status == 'Pending' %}
+                        <button class="btn btn-outline-danger btn-sm cancel-btn" data-order-id="{{ order.id }}">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Empty State - No Orders -->
+    <div class="empty-state text-center py-5">
+        <div class="empty-state-icon mb-4">
+            <i class="fas fa-shopping-bag fa-5x" style="color: var(--primary); opacity: 0.5;"></i>
+        </div>
+        <h3 class="mb-3">No Orders Yet</h3>
+        <p class="text-muted mb-4">You haven't placed any orders yet. Start shopping to see your orders here!</p>
+        <a href="{{ url_for('main.all_products') }}" class="btn btn-primary-custom btn-lg">
+            <i class="fas fa-store me-2"></i> Start Shopping
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Continue Shopping Button -->
+    <div class="text-center mt-4">
+        <a href="{{ url_for('main.all_products') }}" class="btn btn-outline-custom">
+            <i class="fas fa-arrow-left me-2"></i> Continue Shopping
+        </a>
+    </div>
+</div>
+
+<style>
+    /* Statistics Cards */
+    .stat-card {
+        background: white;
+        border: 1px solid rgba(230,126,34,0.1);
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(230,126,34,0.1);
+    }
+    
+    /* Orders Table */
+    .orders-container {
+        background: white;
+        border-radius: 24px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 1px solid rgba(230,126,34,0.1);
+    }
+    
+    .orders-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .orders-table th {
+        padding: 1rem;
+        background: #FFFCF8;
+        font-weight: 600;
+        color: var(--slate);
+        border-bottom: 2px solid rgba(230,126,34,0.2);
+    }
+    
+    .orders-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(230,126,34,0.1);
+        vertical-align: middle;
+    }
+    
+    .orders-table tr:hover {
+        background: rgba(230,126,34,0.02);
+    }
+    
+    .order-id {
+        font-weight: 700;
+        color: var(--primary);
+        font-family: monospace;
+        font-size: 1rem;
+    }
+    
+    .order-amount {
+        font-weight: 800;
+        color: var(--primary-dark);
+        font-size: 1.1rem;
+    }
+    
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.delivered {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .status-badge.processing {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+    
+    .status-badge.shipped {
+        background: #E3F2FD;
+        color: #1565C0;
+    }
+    
+    .status-badge.pending {
+        background: #FFF8E1;
+        color: #F57F17;
+    }
+    
+    .status-badge.cancelled {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    /* Action Buttons */
+    .btn-action {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+        margin: 0 3px;
+    }
+    
+    .view-btn {
+        background: #FEF3E4;
+        color: var(--primary);
+    }
+    
+    .view-btn:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .review-btn {
+        background: #FFF8E1;
+        color: #F39C12;
+    }
+    
+    .review-btn:hover {
+        background: #F39C12;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .cancel-btn {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+    
+    .cancel-btn:hover {
+        background: #C62828;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    /* Order Card (Mobile) */
+    .order-card {
+        background: white;
+        border: 1px solid rgba(230,126,34,0.1);
+        transition: all 0.3s;
+    }
+    
+    .order-card:hover {
+        box-shadow: 0 5px 15px rgba(230,126,34,0.1);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        background: white;
+        border-radius: 28px;
+        padding: 3rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    /* Page Header */
+    .page-header {
+        border-bottom: 1px solid rgba(230,126,34,0.15);
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .order-row {
+        animation: fadeIn 0.4s ease forwards;
+    }
+    
+    @media (max-width: 768px) {
+        .orders-container {
+            padding: 1rem;
+        }
+        .stat-card {
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+
+<script>
+    // Filter orders by status
+    document.querySelectorAll('.filter-status').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const status = this.dataset.status;
+            const rows = document.querySelectorAll('.order-row');
+            
+            rows.forEach(row => {
+                if (status === 'all' || row.dataset.status === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Update active filter button style
+            document.querySelectorAll('.filter-status').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+        });
+    });
+    
+    // Search orders
+    const searchInput = document.getElementById('searchOrder');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.order-row');
+            
+            rows.forEach(row => {
+                const orderId = row.querySelector('.order-id')?.innerText.toLowerCase() || '';
+                const orderDate = row.querySelector('.order-date')?.innerText.toLowerCase() || '';
+                
+                if (orderId.includes(searchTerm) || orderDate.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Cancel order confirmation
+    document.querySelectorAll('.cancel-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            if (confirm('Are you sure you want to cancel this order?')) {
+                const orderId = this.dataset.orderId;
+                // Redirect to cancel endpoint or show modal
+                window.location.href = `/order/${orderId}/cancel`;
+            }
+        });
+    });
+    
+    // Review order (for delivered items)
+    document.querySelectorAll('.review-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orderId = this.dataset.orderId;
+            // Show review modal or redirect
+            window.location.href = `/order/${orderId}/review`;
+        });
+    });
+</script>
+{% endblock %}

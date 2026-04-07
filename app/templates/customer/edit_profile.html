@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-circle"></i> Profile Menu</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-user-circle fa-5x text-primary"></i>
+                        <h5 class="mt-2">{{ user.username }}</h5>
+                        <p class="text-muted">Edit your information</p>
+                    </div>
+                    <hr>
+                    <div class="list-group">
+                        <a href="{{ url_for('customer.profile') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user"></i> My Profile
+                        </a>
+                        <a href="{{ url_for('customer.edit_profile') }}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                        <a href="{{ url_for('customer.orders') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-truck"></i> My Orders
+                        </a>
+                        <a href="{{ url_for('cart.view_cart') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-shopping-cart"></i> My Cart
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-edit"></i> Edit Profile</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user"></i> Username
+                            </label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                            <div class="form-text">Your username will be visible to others.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope"></i> Email Address
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                            <div class="form-text">We'll never share your email with anyone else.</div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> For security reasons, password changes are not available here. Contact admin if you need to reset your password.
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a href="{{ url_for('customer.profile') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Danger Zone -->
+            <div class="card mt-4 border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Danger Zone</h4>
+                </div>
+                <div class="card-body">
+                    <p>Account deletion is not available through the website. Please contact customer support for account closure requests.</p>
+                    <button class="btn btn-outline-danger" disabled>
+                        <i class="fas fa-trash"></i> Request Account Deletion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
