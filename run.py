@@ -1,5 +1,8 @@
 from app import create_app
+import os
 
+# Get configuration from environment variable
+config_name = os.environ.get('FLASK_CONFIG', 'default')
 app = create_app()
 
 if __name__ == '__main__':
