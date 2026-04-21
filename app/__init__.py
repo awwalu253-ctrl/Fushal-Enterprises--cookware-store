@@ -2,13 +2,11 @@
 from config import Config
 from app.extensions import db, login_manager
 from app.utils.email_service import init_mail
-import os
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     
-    # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
     
@@ -29,11 +27,10 @@ def create_app():
     app.register_blueprint(chat.bp)
     app.register_blueprint(newsletter.bp)
     
-    # Create tables
     with app.app_context():
         db.create_all()
         
-        # Create admin user
+        # Create permanent admin user
         from app.utils.admin_setup import create_permanent_admin
         create_permanent_admin()
     

@@ -64,6 +64,10 @@ def privacy():
     """Privacy Policy page"""
     return render_template('privacy.html')
 
+@bp.route('/test')
+def test():
+    return {"status": "success", "message": "App is working!"}
+
 @bp.route('/submit-contact', methods=['POST'])
 @login_required
 def submit_contact():

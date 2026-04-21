@@ -1,4 +1,3 @@
-# app.py - Root level entry point for Vercel
 from app import create_app
 
 # Create the Flask application from your actual app package
